@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard การใช้กระดาษพิมพ์</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#fff;--bg2:#f5f4f1;--bg3:#eceae5;--bg4:#e2e0da;--text:#18181a;--text2:#54524e;--text3:#8a887f;--bd:rgba(0,0,0,0.10);--bd2:rgba(0,0,0,0.20);--blue:#2F7ED8;--bluebg:#EAF2FB;--bluet:#0a3d7a;--teal:#17936A;--tealbg:#DDF4EC;--tealt:#06412e;--red:#D94040;--redbg:#FCEAEA;--redt:#6e1a1a;--amber:#B8720F;--ambbg:#FDF0D9;--ambt:#5a3200;--green:#5A9010;--grnbg:#EBF4D8;--grnt:#243d06;--r:8px;--rl:14px;--shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.05)}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--bg2:#252523;--bg3:#2e2d2a;--bg4:#383632;--text:#f0ede8;--text2:#b0aea7;--text3:#7a7870;--bd:rgba(255,255,255,0.09);--bd2:rgba(255,255,255,0.18);--bluebg:#0a3d7a;--bluet:#9ec8f5;--tealbg:#06412e;--tealt:#7de8c0;--redbg:#6e1a1a;--redt:#f5aaaa;--ambbg:#5a3200;--ambt:#fad49a;--grnbg:#243d06;--grnt:#b8e06a}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg3);color:var(--text);font-size:14px;line-height:1.6}
+.app{max-width:1300px;margin:0 auto;padding:1.25rem 1rem}
+.hdr{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.4rem;margin-bottom:.85rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow)}
+.hdr-title{display:flex;align-items:center;gap:10px}
+.hdr-icon{font-size:28px}
+.hdr h1{font-size:18px;font-weight:600;line-height:1.2}
+.hdr p{font-size:12px;color:var(--text2);margin-top:2px}
+.hdr-r{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+select,button{font-family:inherit;font-size:13px;border-radius:var(--r);border:1px solid var(--bd2);background:var(--bg);color:var(--text);cursor:pointer}
+select{padding:7px 28px 7px 10px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+button{padding:7px 13px;transition:all .15s;font-weight:500}
+button:hover{background:var(--bg2)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1a5fb0}
+.btn-ghost{border:1px solid var(--bd2)}
+.upload-area{background:var(--bg);border:2px dashed var(--bd2);border-radius:var(--rl);padding:1rem 1.25rem;text-align:center;cursor:pointer;margin-bottom:.85rem;transition:all .15s}
+.upload-area:hover{border-color:var(--blue);background:var(--bluebg)}
+.upload-area .ico{font-size:22px;margin-bottom:4px}
+.upload-area strong{font-size:13px;color:var(--text)}
+.upload-area p{font-size:11px;color:var(--text2);margin-top:2px}
+.status{font-size:12px;padding:8px 12px;border-radius:var(--r);margin-bottom:.85rem;display:none;font-weight:500}
+.status.ok{background:var(--grnbg);color:var(--grnt);border:1px solid var(--green);display:flex;align-items:center;gap:6px}
+.status.err{background:var(--redbg);color:var(--redt);border:1px solid var(--red);display:flex;align-items:center;gap:6px}
+.formula{background:var(--ambbg);border:1px solid var(--amber);border-radius:var(--r);padding:.65rem 1rem;font-size:12px;color:var(--ambt);margin-bottom:.85rem;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.nav{display:flex;gap:4px;margin-bottom:.85rem;background:var(--bg2);padding:4px;border-radius:var(--rl);width:fit-content}
+.npill{font-size:13px;padding:6px 18px;border-radius:10px;cursor:pointer;color:var(--text2);font-weight:500;transition:all .15s;white-space:nowrap}
+.npill.on{background:var(--bg);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.12);font-weight:600}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:.85rem}
+.metric{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;box-shadow:var(--shadow)}
+.metric .lb{font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:500;display:flex;align-items:center;gap:4px}
+.metric .vl{font-size:22px;font-weight:700;line-height:1.1}
+.metric .sb{font-size:11px;color:var(--text3);margin-top:2px}
+.metric.warn{border-color:var(--red)}
+.metric.warn .vl{color:var(--red)}
+.metric.good{border-color:var(--teal)}
+.metric.good .vl{color:var(--teal)}
+.card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.25rem;margin-bottom:.85rem;box-shadow:var(--shadow)}
+.card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.85rem;display:flex;align-items:center;gap:6px}
+.card-title .ctag{font-size:11px;text-transform:none;letter-spacing:0;padding:2px 8px;border-radius:99px;font-weight:500}
+.brgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px}
+.brc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;transition:box-shadow .15s}
+.brc:hover{box-shadow:var(--shadow)}
+.brc.over-branch{border-color:var(--red)}
+.brh{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{font-size:11px;padding:2px 9px;border-radius:99px;font-weight:600}
+.badge-ov{background:var(--redbg);color:var(--redt)}
+.badge-ok{background:var(--grnbg);color:var(--grnt)}
+.drow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--bd)}
+.drow:last-of-type{border:none;padding-bottom:0}
+.dl{color:var(--text2)}
+.dv{font-weight:600}
+.dv.ov{color:var(--red)}
+.dv.bl{color:var(--blue)}
+.barbg{height:6px;border-radius:3px;background:var(--bg4);margin-top:10px;overflow:hidden}
+.barfill{height:6px;border-radius:3px;transition:width .4s}
+.barlb{font-size:11px;color:var(--text3);text-align:right;margin-top:3px}
+.ctop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:.75rem}
+.tabs-sm{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--r)}
+.tab-sm{font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;color:var(--text2);font-weight:500;transition:all .12s}
+.tab-sm.on{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.1);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--text2)}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+.msel{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.85rem}
+.mbtn{font-size:12px;padding:5px 11px;border-radius:var(--r);border:1px solid var(--bd);cursor:pointer;background:var(--bg);color:var(--text2);font-weight:500;transition:all .12s}
+.mbtn:hover{border-color:var(--blue);color:var(--blue)}
+.mbtn.on{background:var(--bluebg);color:var(--bluet);border-color:var(--blue);font-weight:600}
+.mbtn.na{opacity:.3;cursor:default;pointer-events:none}
+.tscroll{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bd)}
+table.dt{width:100%;border-collapse:collapse;font-size:12.5px;min-width:820px}
+table.dt th{background:var(--bg2);color:var(--text2);font-weight:600;padding:8px 10px;text-align:right;border-bottom:1.5px solid var(--bd2);white-space:nowrap;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+table.dt th:first-child,table.dt th:nth-child(2),table.dt th:nth-child(3){text-align:left}
+table.dt td{padding:7px 10px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+table.dt td:first-child,table.dt td:nth-child(2),table.dt td:nth-child(3){text-align:left}
+table.dt tr:hover td{background:var(--bg2)}
+table.dt .oc{color:var(--red);font-weight:700}
+table.dt tfoot td{font-weight:700;background:var(--bg2);border-top:2px solid var(--bd2)}
+.divider{border:none;border-top:1px solid var(--bd);margin:.5rem 0}
+.mo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-top:.85rem}
+footer{text-align:center;font-size:11px;color:var(--text3);padding:1rem 0 .4rem}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="hdr-title">
+    <div class="hdr-icon">🖨️</div>
+    <div>
+      <h1>Dashboard การใช้กระดาษพิมพ์</h1>
+      <p>ปริมาณการปริ้นต์ · ค่าเช่าเครื่อง · ค่าเกินลิมิต · รายสาขา (ตัดวันที่ 20)</p>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <select id="selYear" onchange="onYearChange()">
+      <option value="all">📅 ทุกปี</option>
+      <option value="2567">ปี 2567</option>
+      <option value="2568" selected>ปี 2568</option>
+      <option value="2569">ปี 2569</option>
+    </select>
+    <select id="selBranch" onchange="render()">
+      <option value="all">🏪 ทุกสาขา</option>
+      <option value="HQ">สนง.ใหญ่</option>
+      <option value="SR">ศรีราชา 3</option>
+      <option value="BS">บางแสน</option>
+      <option value="PT">ร.พ.พัทยา</option>
+    </select>
+    <button class="btn-ghost" onclick="exportCSV()">⬇ CSV</button>
+    <button class="btn-primary" onclick="document.getElementById('fi').click()">⬆ นำเข้าไฟล์</button>
+    <input type="file" id="fi" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadFile(this)">
+  </div>
+</div>
+<div class="upload-area" onclick="document.getElementById('fi').click()">
+  <div class="ico">📂</div>
+  <strong>อัปโหลดไฟล์ Excel / CSV เพื่ออัปเดตข้อมูล</strong>
+  <p>รองรับ .xlsx .xls .csv — ระบบจะค้นหา sheet "สรุป" อัตโนมัติ</p>
+</div>
+<div class="status" id="st"></div>
+<div class="formula">
+  <span style="font-size:16px;flex-shrink:0">ℹ️</span>
+  <div><strong>สูตรคำนวณ:</strong> ค่าเช่าเครื่อง (คงที่) + ค่าเกินลิมิต (แผ่นที่เกิน × 0.25 บาท/แผ่น)
+    &nbsp;—&nbsp; <strong>สนง.ใหญ่:</strong> ลิมิต 15,000 แผ่น / ค่าเช่า 3,000฿
+    &nbsp;|&nbsp; <strong>สาขาย่อย:</strong> ลิมิต 1,500 แผ่น / ค่าเช่า 800฿</div>
+</div>
+<div class="nav">
+  <div class="npill on" id="n-ov" onclick="switchView('ov')">📊 ภาพรวม</div>
+  <div class="npill" id="n-mo" onclick="switchView('mo')">📅 รายเดือน</div>
+  <div class="npill" id="n-yr" onclick="switchView('yr')">📈 เทียบปี</div>
+  <div class="npill" id="n-tb" onclick="switchView('tb')">📋 ตารางทั้งหมด</div>
+</div>
+<div id="v-ov">
+  <div class="metrics" id="mrow"></div>
+  <div class="card"><div class="card-title">🏢 สรุปรายสาขา</div><div class="brgrid" id="bcards"></div></div>
+  <div class="card">
+    <div class="ctop">
+      <div><div class="card-title">📉 กราฟการใช้รายเดือน</div><div class="legend" id="leg"></div></div>
+      <div class="tabs-sm">
+        <div class="tab-sm on" id="tp" onclick="sw('paper')">แผ่น</div>
+        <div class="tab-sm" id="tc" onclick="sw('cost')">ค่าใช้จ่าย ฿</div>
+        <div class="tab-sm" id="te" onclick="sw('exc')">แผ่นเกิน</div>
+      </div>
+    </div>
+    <div style="position:relative;height:300px"><canvas id="MC"></canvas></div>
+  </div>
+</div>
+<div id="v-mo" style="display:none">
+  <div class="card">
+    <div class="ctop"><div class="card-title" id="motitle">📅 รายละเอียดรายเดือน</div></div>
+    <div class="msel" id="msel"></div>
+    <div id="modet"></div>
+  </div>
+</div>
+<div id="v-yr" style="display:none">
+  <div class="card"><div class="card-title">📊 เปรียบเทียบการใช้กระดาษรายปี (แผ่นรวม)</div><div style="position:relative;height:260px"><canvas id="YC"></canvas></div></div>
+  <div class="card"><div class="card-title">💰 เปรียบเทียบค่าใช้จ่ายรายปี (฿ รวม)</div><div style="position:relative;height:240px"><canvas id="YC2"></canvas></div></div>
+</div>
+<div id="v-tb" style="display:none">
+  <div class="card"><div class="card-title">📋 ตารางรายละเอียดทุกรายการ <span class="ctag" style="background:var(--bluebg);color:var(--bluet)" id="rowCount"></span></div><div class="tscroll" id="tbl"></div></div>
+</div>
+<footer>Paper Usage Dashboard · ข้อมูลจาก Sheet "สรุป" · ปี 2567 (เม.ย.-ธ.ค.) · ปี 2568 (ม.ค.-ธ.ค.) · ปี 2569 (ม.ค.-เม.ย.)</footer>
+</div>
+<script>
+const N=null,PPE=0.25;
+const BR={HQ:{limit:15000,rent:3000,name:'สนง.ใหญ่ ค้าส่ง',col:'#2F7ED8'},SR:{limit:1500,rent:800,name:'สาขา ศรีราชา 3',col:'#17936A'},BS:{limit:1500,rent:800,name:'สาขา บางแสน',col:'#D94040'},PT:{limit:1500,rent:800,name:'หน้า ร.พ.พัทยา',col:'#B8720F'}};
+const BK=Object.keys(BR);
+const BSOFT=['rgba(47,126,216,0.12)','rgba(23,147,106,0.12)','rgba(217,64,64,0.12)','rgba(184,114,15,0.12)'];
+const MN=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const MS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+let raw={'2567':{HQ:[N,N,N,12311,15952,15802,14493,14052,9897,8123,10939,13203],SR:[N,N,N,2252,2752,2359,1972,1749,1712,1693,1910,1554],BS:[N,N,N,966,1194,939,1017,1291,1030,820,1071,762],PT:[N,N,N,1756,2052,1587,1314,1244,1603,1244,1579,2060]},'2568':{HQ:[12372,15036,13312,11282,10980,13925,9844,10870,9978,10311,11748,10241],SR:[1485,1822,1412,1271,1410,2088,1448,1698,1775,1567,1819,1811],BS:[780,998,829,991,812,1067,737,767,849,1015,889,1153],PT:[1497,1624,1405,1232,1469,1443,2253,1528,1917,1884,1884,1312]},'2569':{HQ:[12452,11009,10145,11750,N,N,N,N,N,N,N,N],SR:[1929,2047,2015,1707,N,N,N,N,N,N,N,N],BS:[842,1031,877,647,N,N,N,N,N,N,N,N],PT:[1503,1362,1256,1284,N,N,N,N,N,N,N,N]}};
+let cmode='paper',cview='ov',selMi=0;
+let MC=null,YC=null,YC2=null;
+function calc(bk,paper){if(paper==null)return null;const b=BR[bk];const exc=Math.max(0,paper-b.limit);const excCost=+(exc*PPE).toFixed(2);const total=+(b.rent+excCost).toFixed(2);return{paper,limit:b.limit,rent:b.rent,exc,excCost,total};}
+function fmtN(n){return n!=null?n.toLocaleString('th-TH'):'–';}
+function fmtB(n){return n!=null?n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','):'–';}
+function getYears(){const y=document.getElementById('selYear').value;return y==='all'?Object.keys(raw):[y];}
+function getBK(){const b=document.getElementById('selBranch').value;return b==='all'?BK:[b];}
+function switchView(v){cview=v;['ov','mo','yr','tb'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';document.getElementById('n-'+x).classList.toggle('on',x===v);});if(v==='mo')renderMonthly();if(v==='yr')renderYearCharts();if(v==='tb')renderTable();}
+function sw(m){cmode=m;['paper','cost','exc'].forEach(k=>document.getElementById({paper:'tp',cost:'tc',exc:'te'}[k]).classList.toggle('on',k===m));renderMainChart(getYears(),getBK());}
+function onYearChange(){selMi=0;render();}
+function render(){const years=getYears(),bks=getBK();let totP=0,totC=0,totE=0,totEC=0,totR=0;const sum={};BK.forEach(b=>{sum[b]={paper:0,exc:0,excCost:0,rent:0,total:0,months:0,overM:0};});years.forEach(y=>{if(!raw[y])return;BK.forEach(b=>{MN.forEach((_,mi)=>{const p=raw[y][b]?.[mi];if(p==null)return;const c=calc(b,p);sum[b].paper+=c.paper;sum[b].exc+=c.exc;sum[b].excCost+=c.excCost;sum[b].rent+=c.rent;sum[b].total+=c.total;sum[b].months++;if(c.exc>0)sum[b].overM++;});});});bks.forEach(b=>{totP+=sum[b].paper;totC+=sum[b].total;totE+=sum[b].exc;totEC+=sum[b].excCost;totR+=sum[b].rent;});const m=document.getElementById('mrow');m.innerHTML=`<div class="metric good"><div class="lb">📄 กระดาษรวม</div><div class="vl">${fmtN(totP)}</div><div class="sb">แผ่น</div></div><div class="metric ${totE>0?'warn':'good'}"><div class="lb">⚠️ แผ่นเกินลิมิต</div><div class="vl">${fmtN(totE)}</div><div class="sb">= ${fmtB(totEC)} ฿</div></div><div class="metric"><div class="lb">🖨️ ค่าเช่าเครื่องรวม</div><div class="vl">${fmtB(totR)}</div><div class="sb">บาท</div></div><div class="metric"><div class="lb">💰 รวมก่อน VAT</div><div class="vl">${fmtB(totC)}</div><div class="sb">บาท</div></div><div class="metric"><div class="lb">🧾 รวม+VAT 7%</div><div class="vl">${fmtB(+(totC*1.07).toFixed(2))}</div><div class="sb">บาท</div></div>`;document.getElementById('bcards').innerHTML=BK.map((b,i)=>{const s=sum[b],cfg=BR[b];const avg=s.months?Math.round(s.paper/s.months):0;const pct=Math.min(130,Math.round(avg/cfg.limit*100));const ov=s.exc>0;return`<div class="brc ${ov?'over-branch':''}"><div class="brh"><span style="width:12px;height:12px;border-radius:3px;background:${cfg.col};display:inline-block;flex-shrink:0"></span>${cfg.name}<span class="badge ${ov?'badge-ov':'badge-ok'}">${ov?'⚠ เกินลิมิต':'✓ ปกติ'}</span></div><div class="drow"><span class="dl">กระดาษรวม</span><span class="dv">${fmtN(s.paper)} แผ่น</span></div><div class="drow"><span class="dl">ลิมิต/เดือน</span><span class="dv">${fmtN(cfg.limit)} แผ่น</span></div><div class="drow"><span class="dl">เฉลี่ย/เดือน</span><span class="dv ${avg>cfg.limit?'ov':''}">${fmtN(avg)} แผ่น</span></div><div class="drow"><span class="dl">แผ่นเกินลิมิตรวม</span><span class="dv ${ov?'ov':''}">${fmtN(s.exc)} แผ่น</span></div><hr class="divider"><div class="drow"><span class="dl">ค่าเช่าเครื่องรวม</span><span class="dv bl">${fmtB(s.rent)} ฿</span></div><div class="drow"><span class="dl">ค่าเกิน (×0.25฿)</span><span class="dv ${ov?'ov':''}">${fmtB(s.excCost)} ฿</span></div><div class="drow"><span class="dl">รวมก่อน VAT</span><span class="dv">${fmtB(s.total)} ฿</span></div><div class="drow"><span class="dl">รวม+VAT 7%</span><span class="dv">${fmtB(+(s.total*1.07).toFixed(2))} ฿</span></div><div class="drow"><span class="dl">เดือนที่เกินลิมิต</span><span class="dv ${ov?'ov':''}">${s.overM} / ${s.months} เดือน</span></div><div class="barbg"><div class="barfill" style="width:${Math.min(100,pct)}%;background:${pct>100?'#D94040':cfg.col}"></div></div><div class="barlb">${pct}% ของลิมิต (เฉลี่ย)</div></div>`;}).join('');renderMainChart(years,getBK());if(cview==='mo')renderMonthly();if(cview==='yr')renderYearCharts();if(cview==='tb')renderTable();}
+function renderMainChart(years,bks){const labels=years.length===1?MS:years.flatMap(y=>MS.map(m=>y.slice(2)+'/'+m));const ds=bks.map(b=>{const bi=BK.indexOf(b);const data=years.flatMap(y=>MN.map((_,mi)=>{const p=raw[y]?.[b]?.[mi];if(p==null)return null;const c=calc(b,p);return cmode==='paper'?c.paper:cmode==='cost'?c.total:c.exc;}));return{label:BR[b].name,data,borderColor:BR[b].col,backgroundColor:BSOFT[bi],fill:true,tension:.35,pointRadius:4,pointHoverRadius:7,spanGaps:false};});document.getElementById('leg').innerHTML=ds.map(d=>`<span><span class="dot" style="background:${d.borderColor}"></span>${d.label}</span>`).join('');if(MC)MC.destroy();const unit=cmode==='paper'?'แผ่น':cmode==='cost'?'฿':'แผ่นเกิน';MC=new Chart(document.getElementById('MC'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} ${unit}`}}},scales:{x:{ticks:{font:{size:11},autoSkip:years.length>1,maxRotation:45}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});}
+function renderYearCharts(){const years=Object.keys(raw);const bks=getBK();const ds1=bks.map(b=>({label:BR[b].name,data:years.map(y=>{const vs=(raw[y]?.[b]||[]).filter(v=>v!=null);return vs.length?vs.reduce((a,c)=>a+c,0):null;}),backgroundColor:BR[b].col,borderRadius:5}));if(YC)YC.destroy();YC=new Chart(document.getElementById('YC'),{type:'bar',data:{labels:years,datasets:ds1},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString():'-'} แผ่น`}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});const ds2=bks.map(b=>({label:BR[b].name,data:years.map(y=>{let t=0,any=false;MN.forEach((_,mi)=>{const p=raw[y]?.[b]?.[mi];if(p!=null){t+=calc(b,p).total;any=true;}});return any?+t.toFixed(2):null;}),backgroundColor:BR[b].col,borderRadius:5}));if(YC2)YC2.destroy();YC2=new Chart(document.getElementById('YC2'),{type:'bar',data:{labels:years,datasets:ds2},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} ฿`}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});}
+function renderMonthly(){const years=getYears(),bks=getBK();const avail=new Set();years.forEach(y=>{bks.forEach(b=>{(raw[y]?.[b]||[]).forEach((v,mi)=>{if(v!=null)avail.add(mi);});});});if(!avail.has(selMi))selMi=[...avail].sort((a,b)=>a-b)[0]??0;document.getElementById('motitle').textContent=`📅 รายละเอียด — ${MN[selMi]}`;document.getElementById('msel').innerHTML=MN.map((m,i)=>`<div class="mbtn ${avail.has(i)?i===selMi?'on':'':'na'}" onclick="selM(${i})">${m}</div>`).join('');let html='<div class="mo-grid">';years.forEach(y=>{const hasData=bks.some(b=>raw[y]?.[b]?.[selMi]!=null);if(!hasData)return;let tp=0,te=0,tec=0,tr=0,tt=0;const rowsHtml=bks.map(b=>{const p=raw[y]?.[b]?.[selMi];if(p==null)return'';const c=calc(b,p);tp+=c.paper;te+=c.exc;tec+=c.excCost;tr+=c.rent;tt+=c.total;return`<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${BR[b].col};margin-right:5px"></span>${BR[b].name}</td><td>${fmtN(c.limit)}</td><td>${fmtN(c.paper)}</td><td class="${c.exc>0?'oc':''}">${c.exc>0?fmtN(c.exc):'–'}</td><td>${fmtB(c.rent)}</td><td class="${c.excCost>0?'oc':''}">${c.excCost>0?fmtB(c.excCost):'–'}</td><td>${fmtB(c.total)}</td><td>${fmtB(+(c.total*1.07).toFixed(2))}</td></tr>`;}).join('');html+=`<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;overflow-x:auto"><div style="font-size:13px;font-weight:700;color:var(--bluet);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="background:var(--bluebg);border-radius:6px;padding:2px 8px">ปี ${y}</span> ${MN[selMi]}</div><table class="dt" style="min-width:500px"><thead><tr><th style="text-align:left">สาขา</th><th>ลิมิต</th><th>ใช้(แผ่น)</th><th>เกิน</th><th>ค่าเช่า</th><th>ค่าเกิน</th><th>รวม(฿)</th><th>+VAT7%</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr><td>รวม</td><td>–</td><td>${fmtN(tp)}</td><td class="${te>0?'oc':''}">${te>0?fmtN(te):'–'}</td><td>${fmtB(tr)}</td><td class="${tec>0?'oc':''}">${tec>0?fmtB(tec):'–'}</td><td>${fmtB(tt)}</td><td>${fmtB(+(tt*1.07).toFixed(2))}</td></tr></tfoot></table></div>`;});html+='</div>';html+=`<div class="card" style="margin-top:.85rem"><div class="card-title">📊 ${MN[selMi]} — เปรียบเทียบทุกปี (จำนวนแผ่น)</div><div style="position:relative;height:220px"><canvas id="MC2"></canvas></div></div>`;document.getElementById('modet').innerHTML=html;setTimeout(()=>{const ctx=document.getElementById('MC2');if(!ctx)return;new Chart(ctx,{type:'bar',data:{labels:Object.keys(raw),datasets:bks.map(b=>({label:BR[b].name,data:Object.keys(raw).map(y=>raw[y]?.[b]?.[selMi]??null),backgroundColor:BR[b].col,borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString():'-'} แผ่น`}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});},60);}
+function selM(i){selMi=i;renderMonthly();}
+function renderTable(){const years=getYears(),bks=getBK();let rows=[];years.forEach(y=>{MN.forEach((m,mi)=>{bks.forEach(b=>{const p=raw[y]?.[b]?.[mi];if(p==null)return;const c=calc(b,p);rows.push({y,m,b,c});});});});document.getElementById('rowCount').textContent=rows.length+' รายการ';if(!rows.length){document.getElementById('tbl').innerHTML='<p style="color:var(--text3);padding:1rem;font-size:12px">ไม่มีข้อมูล</p>';return;}let tp=0,te=0,tec=0,tr=0,tt=0;rows.forEach(r=>{tp+=r.c.paper;te+=r.c.exc;tec+=r.c.excCost;tr+=r.c.rent;tt+=r.c.total;});document.getElementById('tbl').innerHTML=`<table class="dt"><thead><tr><th>ปี</th><th>เดือน</th><th>สาขา</th><th>ลิมิต</th><th>ใช้ (แผ่น)</th><th>เกิน (แผ่น)</th><th>ค่าเช่า (฿)</th><th>ค่าเกิน @0.25฿</th><th>รวม (฿)</th><th>+VAT 7% (฿)</th></tr></thead><tbody>${rows.map(({y,m,b,c})=>`<tr><td><span style="background:var(--bluebg);color:var(--bluet);padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600">${y}</span></td><td>${m}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${BR[b].col};margin-right:4px"></span>${BR[b].name}</td><td>${fmtN(c.limit)}</td><td>${fmtN(c.paper)}</td><td class="${c.exc>0?'oc':''}">${c.exc>0?fmtN(c.exc):'–'}</td><td>${fmtB(c.rent)}</td><td class="${c.excCost>0?'oc':''}">${c.excCost>0?fmtB(c.excCost):'–'}</td><td>${fmtB(c.total)}</td><td>${fmtB(+(c.total*1.07).toFixed(2))}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3" style="text-align:left">รวมทั้งหมด</td><td>–</td><td>${fmtN(tp)}</td><td class="${te>0?'oc':''}">${te>0?fmtN(te):'–'}</td><td>${fmtB(tr)}</td><td class="${tec>0?'oc':''}">${tec>0?fmtB(tec):'–'}</td><td>${fmtB(tt)}</td><td>${fmtB(+(tt*1.07).toFixed(2))}</td></tr></tfoot></table>`;}
+function exportCSV(){const years=getYears(),bks=getBK();const rs=[['ปี','เดือน','สาขา','ลิมิต','ใช้(แผ่น)','เกิน(แผ่น)','ค่าเช่า(฿)','ค่าเกิน@0.25฿','รวม(฿)','รวม+VAT7%(฿)']];years.forEach(y=>MN.forEach((m,mi)=>bks.forEach(b=>{const p=raw[y]?.[b]?.[mi];if(p==null)return;const c=calc(b,p);rs.push([y,m,BR[b].name,c.limit,c.paper,c.exc,c.rent,c.excCost,c.total.toFixed(2),(c.total*1.07).toFixed(2)]);})));const csv='\uFEFF'+rs.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='paper_usage_'+getYears().join('-')+'.csv';a.click();}
+function loadFile(inp){const file=inp.files[0];if(!file)return;const st=document.getElementById('st');st.className='status';st.style.display='block';st.textContent='⏳ กำลังอ่านไฟล์...';const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});const sn=wb.SheetNames.find(s=>s.includes('สรุป')||s.toLowerCase().includes('summary'))||wb.SheetNames[0];const ws=wb.Sheets[sn];const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});const nd=parseSheet(json);if(Object.keys(nd).length>0){Object.assign(raw,nd);rebuildYearSelect();render();st.className='status ok';st.innerHTML='✅ โหลดสำเร็จ: "'+file.name+'" (sheet: '+sn+')';}else{st.className='status err';st.innerHTML='⚠️ ไม่พบข้อมูลในไฟล์';}}catch(err){st.className='status err';st.innerHTML='❌ เกิดข้อผิดพลาด: '+err.message;}};reader.readAsBinaryString(file);}
+function parseSheet(rows){const nd={};const bmap={'สำนักงานใหญ่':'HQ','ค้าส่ง':'HQ','15,000':'HQ','ศรีราชา 3':'SR','ศรีราชา':'SR','บางแสน':'BS','พัทยา':'PT','กรุงเทพพัทยา':'PT'};let cy=null,cb=null;rows.forEach(row=>{if(!row||!row[0])return;const c0=String(row[0]).replace(/\n/g,' ').trim();const c1=row[1]?String(row[1]).replace(/\n/g,' ').trim():'';const c2=row[2]?String(row[2]).replace(/\n/g,' ').trim():'';const ym=c2.match(/^(256[0-9])$/);if(ym){cy=ym[1];if(!nd[cy]){nd[cy]={};BK.forEach(b=>{nd[cy][b]=Array(12).fill(null);});}return;}if(!cy)return;for(const[k,v]of Object.entries(bmap)){if(c0.includes(k)){cb=v;break;}}if(cb&&c1.includes('กระดาษใช้ไป')){MN.forEach((_,mi)=>{const val=row[mi+2];if(val==null||val==='')return;const n=parseInt(String(val).replace(/[^0-9]/g,''));if(!isNaN(n)&&n>0)nd[cy][cb][mi]=n;});}});return nd;}
+function rebuildYearSelect(){const opts=Object.keys(raw).sort();const sel=document.getElementById('selYear');while(sel.options.length>1)sel.remove(1);opts.forEach(y=>{const o=document.createElement('option');o.value=y;o.text='ปี '+y;sel.appendChild(o);});sel.value=opts[opts.length-1];}
+render();
+</script>
+</body>
+</html>
