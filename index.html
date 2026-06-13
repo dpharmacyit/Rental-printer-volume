@@ -4,201 +4,1061 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Dashboard การใช้กระดาษพิมพ์</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#fff;--bg2:#f5f4f1;--bg3:#eceae5;--bg4:#e2e0da;--text:#18181a;--text2:#54524e;--text3:#8a887f;--bd:rgba(0,0,0,0.10);--bd2:rgba(0,0,0,0.20);--blue:#2F7ED8;--bluebg:#EAF2FB;--bluet:#0a3d7a;--teal:#17936A;--tealbg:#DDF4EC;--tealt:#06412e;--red:#D94040;--redbg:#FCEAEA;--redt:#6e1a1a;--amber:#B8720F;--ambbg:#FDF0D9;--ambt:#5a3200;--green:#5A9010;--grnbg:#EBF4D8;--grnt:#243d06;--r:8px;--rl:14px;--shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 12px rgba(0,0,0,0.05)}
-@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--bg2:#252523;--bg3:#2e2d2a;--bg4:#383632;--text:#f0ede8;--text2:#b0aea7;--text3:#7a7870;--bd:rgba(255,255,255,0.09);--bd2:rgba(255,255,255,0.18);--bluebg:#0a3d7a;--bluet:#9ec8f5;--tealbg:#06412e;--tealt:#7de8c0;--redbg:#6e1a1a;--redt:#f5aaaa;--ambbg:#5a3200;--ambt:#fad49a;--grnbg:#243d06;--grnt:#b8e06a}}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg3);color:var(--text);font-size:14px;line-height:1.6}
-.app{max-width:1300px;margin:0 auto;padding:1.25rem 1rem}
-.hdr{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.4rem;margin-bottom:.85rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:var(--shadow)}
-.hdr-title{display:flex;align-items:center;gap:10px}
-.hdr-icon{font-size:28px}
-.hdr h1{font-size:18px;font-weight:600;line-height:1.2}
-.hdr p{font-size:12px;color:var(--text2);margin-top:2px}
-.hdr-r{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-select,button{font-family:inherit;font-size:13px;border-radius:var(--r);border:1px solid var(--bd2);background:var(--bg);color:var(--text);cursor:pointer}
-select{padding:7px 28px 7px 10px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
-button{padding:7px 13px;transition:all .15s;font-weight:500}
-button:hover{background:var(--bg2)}
-.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.btn-primary:hover{background:#1a5fb0}
-.btn-ghost{border:1px solid var(--bd2)}
-.upload-area{background:var(--bg);border:2px dashed var(--bd2);border-radius:var(--rl);padding:1rem 1.25rem;text-align:center;cursor:pointer;margin-bottom:.85rem;transition:all .15s}
-.upload-area:hover{border-color:var(--blue);background:var(--bluebg)}
-.upload-area .ico{font-size:22px;margin-bottom:4px}
-.upload-area strong{font-size:13px;color:var(--text)}
-.upload-area p{font-size:11px;color:var(--text2);margin-top:2px}
-.status{font-size:12px;padding:8px 12px;border-radius:var(--r);margin-bottom:.85rem;display:none;font-weight:500}
-.status.ok{background:var(--grnbg);color:var(--grnt);border:1px solid var(--green);display:flex;align-items:center;gap:6px}
-.status.err{background:var(--redbg);color:var(--redt);border:1px solid var(--red);display:flex;align-items:center;gap:6px}
-.formula{background:var(--ambbg);border:1px solid var(--amber);border-radius:var(--r);padding:.65rem 1rem;font-size:12px;color:var(--ambt);margin-bottom:.85rem;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
-.nav{display:flex;gap:4px;margin-bottom:.85rem;background:var(--bg2);padding:4px;border-radius:var(--rl);width:fit-content}
-.npill{font-size:13px;padding:6px 18px;border-radius:10px;cursor:pointer;color:var(--text2);font-weight:500;transition:all .15s;white-space:nowrap}
-.npill.on{background:var(--bg);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.12);font-weight:600}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:.85rem}
-.metric{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;box-shadow:var(--shadow)}
-.metric .lb{font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:500;display:flex;align-items:center;gap:4px}
-.metric .vl{font-size:22px;font-weight:700;line-height:1.1}
-.metric .sb{font-size:11px;color:var(--text3);margin-top:2px}
-.metric.warn{border-color:var(--red)}
-.metric.warn .vl{color:var(--red)}
-.metric.good{border-color:var(--teal)}
-.metric.good .vl{color:var(--teal)}
-.card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.25rem;margin-bottom:.85rem;box-shadow:var(--shadow)}
-.card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.85rem;display:flex;align-items:center;gap:6px}
-.card-title .ctag{font-size:11px;text-transform:none;letter-spacing:0;padding:2px 8px;border-radius:99px;font-weight:500}
-.brgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px}
-.brc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;transition:box-shadow .15s}
-.brc:hover{box-shadow:var(--shadow)}
-.brc.over-branch{border-color:var(--red)}
-.brh{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.badge{font-size:11px;padding:2px 9px;border-radius:99px;font-weight:600}
-.badge-ov{background:var(--redbg);color:var(--redt)}
-.badge-ok{background:var(--grnbg);color:var(--grnt)}
-.drow{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--bd)}
-.drow:last-of-type{border:none;padding-bottom:0}
-.dl{color:var(--text2)}
-.dv{font-weight:600}
-.dv.ov{color:var(--red)}
-.dv.bl{color:var(--blue)}
-.barbg{height:6px;border-radius:3px;background:var(--bg4);margin-top:10px;overflow:hidden}
-.barfill{height:6px;border-radius:3px;transition:width .4s}
-.barlb{font-size:11px;color:var(--text3);text-align:right;margin-top:3px}
-.ctop{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:.75rem}
-.tabs-sm{display:flex;gap:3px;background:var(--bg2);padding:3px;border-radius:var(--r)}
-.tab-sm{font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;color:var(--text2);font-weight:500;transition:all .12s}
-.tab-sm.on{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.1);font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--text2)}
-.legend span{display:flex;align-items:center;gap:5px}
-.dot{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
-.msel{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.85rem}
-.mbtn{font-size:12px;padding:5px 11px;border-radius:var(--r);border:1px solid var(--bd);cursor:pointer;background:var(--bg);color:var(--text2);font-weight:500;transition:all .12s}
-.mbtn:hover{border-color:var(--blue);color:var(--blue)}
-.mbtn.on{background:var(--bluebg);color:var(--bluet);border-color:var(--blue);font-weight:600}
-.mbtn.na{opacity:.3;cursor:default;pointer-events:none}
-.tscroll{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bd)}
-table.dt{width:100%;border-collapse:collapse;font-size:12.5px;min-width:820px}
-table.dt th{background:var(--bg2);color:var(--text2);font-weight:600;padding:8px 10px;text-align:right;border-bottom:1.5px solid var(--bd2);white-space:nowrap;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
-table.dt th:first-child,table.dt th:nth-child(2),table.dt th:nth-child(3){text-align:left}
-table.dt td{padding:7px 10px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
-table.dt td:first-child,table.dt td:nth-child(2),table.dt td:nth-child(3){text-align:left}
-table.dt tr:hover td{background:var(--bg2)}
-table.dt .oc{color:var(--red);font-weight:700}
-table.dt tfoot td{font-weight:700;background:var(--bg2);border-top:2px solid var(--bd2)}
-.divider{border:none;border-top:1px solid var(--bd);margin:.5rem 0}
-.mo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-top:.85rem}
-footer{text-align:center;font-size:11px;color:var(--text3);padding:1rem 0 .4rem}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes slideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+:root{
+  --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-tertiary:#334155;--bg-card:#1e293b;
+  --text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-tertiary:#64748b;
+  --accent-blue:#3b82f6;--accent-blue-light:#60a5fa;--accent-blue-dark:#2563eb;
+  --accent-emerald:#10b981;--accent-rose:#f43f5e;--accent-amber:#f59e0b;--accent-violet:#8b5cf6;
+  --border:#334155;--shadow:0 4px 6px -1px rgb(0 0 0/0.3),0 2px 4px -2px rgb(0 0 0/0.3);
+  --shadow-lg:0 20px 25px -5px rgb(0 0 0/0.5),0 8px 10px -6px rgb(0 0 0/0.4);
+  --glow-blue:0 0 20px rgba(59,130,246,0.4);--glow-emerald:0 0 20px rgba(16,185,129,0.4);
+  --glow-rose:0 0 20px rgba(244,63,94,0.4);
+  --gradient-primary:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  --gradient-success:linear-gradient(135deg,#10b981 0%,#059669 100%);
+  --gradient-danger:linear-gradient(135deg,#f43f5e 0%,#e11d48 100%);
+  --gradient-warning:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'IBM Plex Sans Thai','Kanit',sans-serif;
+  background:var(--bg-primary);color:var(--text-primary);
+  font-size:15px;line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(circle at 20% 30%,rgba(59,130,246,0.05) 0%,transparent 50%),
+                   radial-gradient(circle at 80% 70%,rgba(139,92,246,0.05) 0%,transparent 50%);
+}
+.app{max-width:1400px;margin:0 auto;padding:2rem 1.5rem;animation:fadeInUp 0.6s ease-out}
+
+/* HEADER */
+.header{
+  background:var(--bg-card);border-radius:20px;padding:2rem 2.5rem;margin-bottom:2rem;
+  box-shadow:var(--shadow-lg);position:relative;overflow:hidden;
+  animation:fadeInUp 0.4s ease-out;
+}
+.header::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:var(--gradient-primary);
+}
+.header-content{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;position:relative;z-index:1}
+.header-left{flex:1}
+.header-title{
+  font-family:'Kanit',sans-serif;font-size:2rem;font-weight:700;
+  background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:0.5rem;letter-spacing:-0.02em;
+}
+.header-subtitle{font-size:0.95rem;color:var(--text-secondary);font-weight:300}
+.header-controls{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center}
+
+/* CONTROLS */
+select,button{
+  font-family:inherit;font-size:0.9rem;border-radius:12px;
+  border:1px solid var(--border);background:var(--bg-tertiary);
+  color:var(--text-primary);cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  font-weight:500;
+}
+select{
+  padding:0.75rem 3rem 0.75rem 1.25rem;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 1rem center;
+}
+select:hover{border-color:var(--accent-blue);box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+button{
+  padding:0.75rem 1.5rem;font-weight:600;display:inline-flex;align-items:center;gap:0.5rem;
+}
+button:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+button:active{transform:translateY(0)}
+.btn-primary{
+  background:var(--gradient-primary);border:none;color:#fff;
+  box-shadow:0 4px 12px rgba(59,130,246,0.3);
+}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(59,130,246,0.5)}
+.btn-secondary{border-color:var(--border)}
+.btn-secondary:hover{background:var(--bg-secondary);border-color:var(--accent-blue)}
+
+/* UPLOAD */
+.upload-zone{
+  background:var(--bg-card);border:2px dashed var(--border);border-radius:16px;
+  padding:2rem;text-align:center;cursor:pointer;margin-bottom:2rem;
+  transition:all 0.3s ease;position:relative;overflow:hidden;
+  animation:fadeInUp 0.5s ease-out 0.1s backwards;
+}
+.upload-zone:hover{
+  border-color:var(--accent-blue);background:rgba(59,130,246,0.05);
+  transform:translateY(-2px);box-shadow:var(--shadow);
+}
+.upload-zone::before{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:linear-gradient(45deg,transparent,rgba(59,130,246,0.1),transparent);
+  transform:rotate(45deg);transition:all 0.6s;opacity:0;
+}
+.upload-zone:hover::before{opacity:1;animation:shimmer 2s infinite}
+.upload-icon{font-size:2.5rem;margin-bottom:0.75rem;display:block}
+.upload-title{font-size:1.1rem;font-weight:600;margin-bottom:0.5rem}
+.upload-desc{font-size:0.85rem;color:var(--text-secondary)}
+
+/* STATUS */
+.status{
+  font-size:0.9rem;padding:1rem 1.5rem;border-radius:12px;margin-bottom:2rem;
+  display:none;font-weight:500;animation:slideIn 0.4s ease-out;
+}
+.status.ok{background:rgba(16,185,129,0.15);color:var(--accent-emerald);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;gap:0.75rem}
+.status.err{background:rgba(244,63,94,0.15);color:var(--accent-rose);border:1px solid rgba(244,63,94,0.3);display:flex;align-items:center;gap:0.75rem}
+
+/* FORMULA */
+.formula-box{
+  background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(251,191,36,0.05));
+  border:1px solid rgba(245,158,11,0.3);border-radius:16px;padding:1.25rem 1.75rem;
+  margin-bottom:2rem;animation:fadeInUp 0.6s ease-out 0.2s backwards;
+}
+.formula-content{display:flex;gap:1rem;align-items:flex-start}
+.formula-icon{font-size:1.5rem;flex-shrink:0}
+.formula-text{font-size:0.9rem;line-height:1.6;color:var(--text-secondary)}
+.formula-text strong{color:var(--accent-amber);font-weight:600}
+
+/* NAV */
+.nav-tabs{
+  display:flex;gap:0.5rem;margin-bottom:2rem;background:var(--bg-card);
+  padding:0.5rem;border-radius:16px;width:fit-content;
+  box-shadow:var(--shadow);animation:fadeInUp 0.7s ease-out 0.3s backwards;
+}
+.nav-tab{
+  font-size:0.95rem;padding:0.75rem 1.75rem;border-radius:12px;cursor:pointer;
+  color:var(--text-secondary);font-weight:600;transition:all 0.3s;
+  white-space:nowrap;display:flex;align-items:center;gap:0.5rem;
+}
+.nav-tab:hover{color:var(--text-primary);background:var(--bg-tertiary)}
+.nav-tab.active{
+  background:var(--gradient-primary);color:#fff;
+  box-shadow:0 4px 12px rgba(59,130,246,0.4);
+}
+
+/* METRICS */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1.25rem;margin-bottom:2rem;
+}
+.metric{
+  background:var(--bg-card);border-radius:16px;padding:1.75rem 2rem;
+  border:1px solid var(--border);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  position:relative;overflow:hidden;
+}
+.metric::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--gradient-primary);opacity:0;transition:opacity 0.3s;
+}
+.metric:hover{
+  transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--accent-blue);
+}
+.metric:hover::before{opacity:1}
+.metric:nth-child(1){animation:fadeInUp 0.5s ease-out 0.1s backwards}
+.metric:nth-child(2){animation:fadeInUp 0.5s ease-out 0.2s backwards}
+.metric:nth-child(3){animation:fadeInUp 0.5s ease-out 0.3s backwards}
+.metric:nth-child(4){animation:fadeInUp 0.5s ease-out 0.4s backwards}
+.metric:nth-child(5){animation:fadeInUp 0.5s ease-out 0.5s backwards}
+.metric-label{
+  font-size:0.8rem;color:var(--text-tertiary);margin-bottom:0.75rem;
+  text-transform:uppercase;letter-spacing:0.08em;font-weight:600;
+}
+.metric-value{
+  font-size:2.25rem;font-weight:700;font-family:'Kanit',sans-serif;
+  margin-bottom:0.5rem;letter-spacing:-0.02em;
+}
+.metric-sub{font-size:0.85rem;color:var(--text-secondary)}
+.metric.good .metric-value{color:var(--accent-emerald)}
+.metric.warn .metric-value{color:var(--accent-rose)}
+.metric.good{border-color:rgba(16,185,129,0.3)}
+.metric.warn{border-color:rgba(244,63,94,0.3)}
+
+/* CARD */
+.card{
+  background:var(--bg-card);border-radius:16px;padding:2rem 2.5rem;
+  margin-bottom:2rem;border:1px solid var(--border);
+  box-shadow:var(--shadow);animation:fadeInUp 0.6s ease-out backwards;
+}
+.card-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;
+}
+.card-title{
+  font-size:1.1rem;font-weight:700;color:var(--text-primary);
+  text-transform:uppercase;letter-spacing:0.05em;
+  display:flex;align-items:center;gap:0.75rem;
+}
+.card-badge{
+  font-size:0.75rem;padding:0.25rem 0.75rem;border-radius:20px;
+  font-weight:600;text-transform:none;letter-spacing:0;
+}
+
+/* BRANCH CARDS */
+.branch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem}
+.branch-card{
+  background:var(--bg-secondary);border:1px solid var(--border);
+  border-radius:16px;padding:1.75rem 2rem;transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.branch-card::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:4px;
+  background:var(--gradient-primary);transform:scaleY(0);
+  transition:transform 0.3s;transform-origin:top;
+}
+.branch-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.branch-card:hover::before{transform:scaleY(1)}
+.branch-card.over{border-color:rgba(244,63,94,0.5)}
+.branch-header{
+  display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;
+}
+.branch-color{width:14px;height:14px;border-radius:4px;flex-shrink:0;box-shadow:0 0 10px currentColor}
+.branch-name{font-size:1.1rem;font-weight:700;flex:1}
+.branch-badge{
+  font-size:0.75rem;padding:0.35rem 0.85rem;border-radius:20px;font-weight:700;
+}
+.branch-badge.ok{background:rgba(16,185,129,0.2);color:var(--accent-emerald)}
+.branch-badge.warn{background:rgba(244,63,94,0.2);color:var(--accent-rose)}
+.branch-row{
+  display:flex;justify-content:space-between;padding:0.65rem 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.9rem;
+}
+.branch-row:last-of-type{border:none;padding-bottom:0}
+.branch-label{color:var(--text-tertiary);font-weight:400}
+.branch-value{font-weight:600;color:var(--text-primary)}
+.branch-value.highlight{color:var(--accent-rose)}
+.branch-value.accent{color:var(--accent-blue)}
+.branch-progress{
+  height:8px;background:rgba(255,255,255,0.05);border-radius:10px;
+  margin-top:1.25rem;overflow:hidden;position:relative;
+}
+.branch-progress-bar{
+  height:100%;border-radius:10px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 0 10px currentColor;
+}
+.branch-progress-label{
+  font-size:0.8rem;color:var(--text-tertiary);text-align:right;margin-top:0.5rem;
+}
+.divider{border:none;border-top:1px solid rgba(255,255,255,0.05);margin:1rem 0}
+
+/* CHART CONTROLS */
+.chart-controls{
+  display:flex;gap:0.5rem;background:var(--bg-tertiary);
+  padding:0.35rem;border-radius:10px;
+}
+.chart-tab{
+  font-size:0.85rem;padding:0.5rem 1.25rem;border-radius:8px;
+  cursor:pointer;color:var(--text-secondary);font-weight:600;
+  transition:all 0.3s;border:none;background:transparent;
+}
+.chart-tab:hover{color:var(--text-primary)}
+.chart-tab.active{background:var(--bg-card);color:var(--accent-blue);box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.legend{display:flex;flex-wrap:wrap;gap:1.25rem;font-size:0.85rem;margin-top:0.75rem}
+.legend-item{display:flex;align-items:center;gap:0.5rem;cursor:pointer;transition:opacity 0.2s}
+.legend-item:hover{opacity:0.7}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+
+/* MONTH SELECTOR */
+.month-selector{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.month-btn{
+  font-size:0.85rem;padding:0.6rem 1.25rem;border-radius:10px;
+  border:1px solid var(--border);cursor:pointer;background:var(--bg-tertiary);
+  color:var(--text-secondary);font-weight:600;transition:all 0.3s;
+}
+.month-btn:hover{border-color:var(--accent-blue);color:var(--text-primary)}
+.month-btn.active{
+  background:var(--gradient-primary);color:#fff;border:none;
+  box-shadow:0 4px 12px rgba(59,130,246,0.4);
+}
+.month-btn.na{opacity:0.3;cursor:not-allowed;pointer-events:none}
+
+/* TABLE */
+.table-scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table.data-table{
+  width:100%;border-collapse:collapse;font-size:0.9rem;min-width:900px;
+}
+table.data-table thead{background:var(--bg-tertiary)}
+table.data-table th{
+  color:var(--text-secondary);font-weight:700;padding:1rem 1.25rem;
+  text-align:right;border-bottom:2px solid var(--border);
+  white-space:nowrap;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;
+}
+table.data-table th:first-child,
+table.data-table th:nth-child(2),
+table.data-table th:nth-child(3){text-align:left}
+table.data-table td{
+  padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.03);
+  text-align:right;white-space:nowrap;
+}
+table.data-table td:first-child,
+table.data-table td:nth-child(2),
+table.data-table td:nth-child(3){text-align:left}
+table.data-table tbody tr{transition:background 0.2s}
+table.data-table tbody tr:hover{background:rgba(59,130,246,0.05)}
+table.data-table .highlight{color:var(--accent-rose);font-weight:700}
+table.data-table tfoot{background:var(--bg-tertiary)}
+table.data-table tfoot td{font-weight:700;border-top:2px solid var(--border)}
+
+/* MONTHLY GRID */
+.monthly-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+  gap:1.5rem;margin-top:1.5rem;
+}
+.monthly-card{
+  background:var(--bg-secondary);border:1px solid var(--border);
+  border-radius:12px;padding:1.5rem;overflow-x:auto;
+}
+.monthly-card-header{
+  font-size:1rem;font-weight:700;color:var(--accent-blue);
+  margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem;
+}
+.monthly-tag{
+  background:rgba(59,130,246,0.2);border-radius:8px;
+  padding:0.25rem 0.75rem;font-size:0.85rem;
+}
+
+footer{
+  text-align:center;font-size:0.85rem;color:var(--text-tertiary);
+  padding:2rem 0 1rem;opacity:0.6;
+}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="hdr">
-  <div class="hdr-title">
-    <div class="hdr-icon">🖨️</div>
-    <div>
-      <h1>Dashboard การใช้กระดาษพิมพ์</h1>
-      <p>ปริมาณการปริ้นต์ · ค่าเช่าเครื่อง · ค่าเกินลิมิต · รายสาขา (ตัดวันที่ 20)</p>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-content">
+    <div class="header-left">
+      <h1 class="header-title">🖨️ Dashboard การใช้กระดาษพิมพ์</h1>
+      <p class="header-subtitle">ระบบวิเคราะห์ปริมาณการใช้กระดาษ · ค่าเช่าเครื่อง · ค่าเกินลิมิต · รายสาขา</p>
+    </div>
+    <div class="header-controls">
+      <select id="selYear" onchange="onYearChange()">
+        <option value="all">📅 ทุกปี</option>
+        <option value="2567">ปี 2567</option>
+        <option value="2568" selected>ปี 2568</option>
+        <option value="2569">ปี 2569</option>
+      </select>
+      <select id="selBranch" onchange="render()">
+        <option value="all">🏪 ทุกสาขา</option>
+        <option value="HQ">สนง.ใหญ่</option>
+        <option value="SR">ศรีราชา 3</option>
+        <option value="BS">บางแสน</option>
+        <option value="PT">ร.พ.พัทยา</option>
+      </select>
+      <button class="btn-secondary" onclick="exportCSV()">⬇ ส่งออก CSV</button>
+      <button class="btn-primary" onclick="document.getElementById('fi').click()">
+        ⬆ อัปโหลดไฟล์
+      </button>
+      <input type="file" id="fi" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadFile(this)">
     </div>
   </div>
-  <div class="hdr-r">
-    <select id="selYear" onchange="onYearChange()">
-      <option value="all">📅 ทุกปี</option>
-      <option value="2567">ปี 2567</option>
-      <option value="2568" selected>ปี 2568</option>
-      <option value="2569">ปี 2569</option>
-    </select>
-    <select id="selBranch" onchange="render()">
-      <option value="all">🏪 ทุกสาขา</option>
-      <option value="HQ">สนง.ใหญ่</option>
-      <option value="SR">ศรีราชา 3</option>
-      <option value="BS">บางแสน</option>
-      <option value="PT">ร.พ.พัทยา</option>
-    </select>
-    <button class="btn-ghost" onclick="exportCSV()">⬇ CSV</button>
-    <button class="btn-primary" onclick="document.getElementById('fi').click()">⬆ นำเข้าไฟล์</button>
-    <input type="file" id="fi" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadFile(this)">
-  </div>
 </div>
-<div class="upload-area" onclick="document.getElementById('fi').click()">
-  <div class="ico">📂</div>
-  <strong>อัปโหลดไฟล์ Excel / CSV เพื่ออัปเดตข้อมูล</strong>
-  <p>รองรับ .xlsx .xls .csv — ระบบจะค้นหา sheet "สรุป" อัตโนมัติ</p>
+
+<!-- UPLOAD -->
+<div class="upload-zone" onclick="document.getElementById('fi').click()">
+  <span class="upload-icon">📂</span>
+  <div class="upload-title">อัปโหลดไฟล์ Excel / CSV</div>
+  <div class="upload-desc">รองรับ .xlsx .xls .csv — ระบบจะค้นหา sheet "สรุป" อัตโนมัติ</div>
 </div>
 <div class="status" id="st"></div>
-<div class="formula">
-  <span style="font-size:16px;flex-shrink:0">ℹ️</span>
-  <div><strong>สูตรคำนวณ:</strong> ค่าเช่าเครื่อง (คงที่) + ค่าเกินลิมิต (แผ่นที่เกิน × 0.25 บาท/แผ่น)
-    &nbsp;—&nbsp; <strong>สนง.ใหญ่:</strong> ลิมิต 15,000 แผ่น / ค่าเช่า 3,000฿
-    &nbsp;|&nbsp; <strong>สาขาย่อย:</strong> ลิมิต 1,500 แผ่น / ค่าเช่า 800฿</div>
+<div class="status" id="stLive" style="background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);display:flex;align-items:center;gap:0.75rem;font-size:0.85rem">
+  ⏳ กำลังเชื่อมต่อ Google Sheet เพื่อโหลดข้อมูลล่าสุด...
 </div>
-<div class="nav">
-  <div class="npill on" id="n-ov" onclick="switchView('ov')">📊 ภาพรวม</div>
-  <div class="npill" id="n-mo" onclick="switchView('mo')">📅 รายเดือน</div>
-  <div class="npill" id="n-yr" onclick="switchView('yr')">📈 เทียบปี</div>
-  <div class="npill" id="n-tb" onclick="switchView('tb')">📋 ตารางทั้งหมด</div>
-</div>
-<div id="v-ov">
-  <div class="metrics" id="mrow"></div>
-  <div class="card"><div class="card-title">🏢 สรุปรายสาขา</div><div class="brgrid" id="bcards"></div></div>
-  <div class="card">
-    <div class="ctop">
-      <div><div class="card-title">📉 กราฟการใช้รายเดือน</div><div class="legend" id="leg"></div></div>
-      <div class="tabs-sm">
-        <div class="tab-sm on" id="tp" onclick="sw('paper')">แผ่น</div>
-        <div class="tab-sm" id="tc" onclick="sw('cost')">ค่าใช้จ่าย ฿</div>
-        <div class="tab-sm" id="te" onclick="sw('exc')">แผ่นเกิน</div>
-      </div>
+
+<!-- FORMULA -->
+<div class="formula-box">
+  <div class="formula-content">
+    <span class="formula-icon">💡</span>
+    <div class="formula-text">
+      <strong>สูตรคำนวณ:</strong> ค่าเช่าเครื่อง (คงที่) + ค่าเกินลิมิต (แผ่นที่เกิน × <strong>0.25 บาท/แผ่น</strong>)
+      <br>
+      <strong>สนง.ใหญ่:</strong> ลิมิต 15,000 แผ่น / ค่าเช่า 3,000฿ &nbsp;|&nbsp;
+      <strong>สาขาย่อย:</strong> ลิมิต 1,500 แผ่น / ค่าเช่า 800฿
     </div>
-    <div style="position:relative;height:300px"><canvas id="MC"></canvas></div>
   </div>
 </div>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <div class="nav-tab active" id="n-ov" onclick="switchView('ov')">📊 ภาพรวม</div>
+  <div class="nav-tab" id="n-mo" onclick="switchView('mo')">📅 รายเดือน</div>
+  <div class="nav-tab" id="n-yr" onclick="switchView('yr')">📈 เทียบปี</div>
+  <div class="nav-tab" id="n-tb" onclick="switchView('tb')">📋 ตารางทั้งหมด</div>
+</div>
+
+<!-- VIEW: OVERVIEW -->
+<div id="v-ov">
+  <div class="metrics" id="mrow"></div>
+  
+  <div class="card" style="animation-delay:0.4s">
+    <div class="card-header">
+      <div class="card-title">🏢 สรุปรายสาขา</div>
+    </div>
+    <div class="branch-grid" id="bcards"></div>
+  </div>
+
+  <div class="card" style="animation-delay:0.5s">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📉 กราฟการใช้รายเดือน</div>
+        <div class="legend" id="leg"></div>
+      </div>
+      <div class="chart-controls">
+        <button class="chart-tab active" id="tp" onclick="sw('paper')">แผ่น</button>
+        <button class="chart-tab" id="tc" onclick="sw('cost')">ค่าใช้จ่าย ฿</button>
+        <button class="chart-tab" id="te" onclick="sw('exc')">แผ่นเกิน</button>
+      </div>
+    </div>
+    <div style="position:relative;height:350px"><canvas id="MC"></canvas></div>
+  </div>
+</div>
+
+<!-- VIEW: MONTHLY -->
 <div id="v-mo" style="display:none">
   <div class="card">
-    <div class="ctop"><div class="card-title" id="motitle">📅 รายละเอียดรายเดือน</div></div>
-    <div class="msel" id="msel"></div>
+    <div class="card-header">
+      <div class="card-title" id="motitle">📅 รายละเอียดรายเดือน</div>
+    </div>
+    <div class="month-selector" id="msel"></div>
     <div id="modet"></div>
   </div>
 </div>
+
+<!-- VIEW: YEAR COMPARE -->
 <div id="v-yr" style="display:none">
-  <div class="card"><div class="card-title">📊 เปรียบเทียบการใช้กระดาษรายปี (แผ่นรวม)</div><div style="position:relative;height:260px"><canvas id="YC"></canvas></div></div>
-  <div class="card"><div class="card-title">💰 เปรียบเทียบค่าใช้จ่ายรายปี (฿ รวม)</div><div style="position:relative;height:240px"><canvas id="YC2"></canvas></div></div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📊 เปรียบเทียบการใช้กระดาษรายปี (แผ่นรวม)</div>
+    </div>
+    <div style="position:relative;height:300px"><canvas id="YC"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">💰 เปรียบเทียบค่าใช้จ่ายรายปี (฿ รวม)</div>
+    </div>
+    <div style="position:relative;height:280px"><canvas id="YC2"></canvas></div>
+  </div>
 </div>
+
+<!-- VIEW: TABLE -->
 <div id="v-tb" style="display:none">
-  <div class="card"><div class="card-title">📋 ตารางรายละเอียดทุกรายการ <span class="ctag" style="background:var(--bluebg);color:var(--bluet)" id="rowCount"></span></div><div class="tscroll" id="tbl"></div></div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        📋 ตารางรายละเอียดทุกรายการ
+        <span class="card-badge" style="background:rgba(59,130,246,0.2);color:var(--accent-blue)" id="rowCount"></span>
+      </div>
+    </div>
+    <div class="table-scroll" id="tbl"></div>
+  </div>
 </div>
-<footer>Paper Usage Dashboard · ข้อมูลจาก Sheet "สรุป" · ปี 2567 (เม.ย.-ธ.ค.) · ปี 2568 (ม.ค.-ธ.ค.) · ปี 2569 (ม.ค.-เม.ย.)</footer>
+
+<footer>
+  Paper Usage Dashboard Pro Max · ข้อมูลจาก Sheet "สรุป" (Google Sheets — โหลดอัตโนมัติ) ·
+  ปี 2567 (เม.ย.-ธ.ค.) · ปี 2568 (ม.ค.-ธ.ค.) · ปี 2569 (ม.ค.-พ.ค.)
+</footer>
 </div>
+
 <script>
 const N=null,PPE=0.25;
-const BR={HQ:{limit:15000,rent:3000,name:'สนง.ใหญ่ ค้าส่ง',col:'#2F7ED8'},SR:{limit:1500,rent:800,name:'สาขา ศรีราชา 3',col:'#17936A'},BS:{limit:1500,rent:800,name:'สาขา บางแสน',col:'#D94040'},PT:{limit:1500,rent:800,name:'หน้า ร.พ.พัทยา',col:'#B8720F'}};
+const BR={
+  HQ:{limit:15000,rent:3000,name:'สนง.ใหญ่ ค้าส่ง',col:'#3b82f6'},
+  SR:{limit:1500,rent:800,name:'สาขา ศรีราชา 3',col:'#10b981'},
+  BS:{limit:1500,rent:800,name:'สาขา บางแสน',col:'#f43f5e'},
+  PT:{limit:1500,rent:800,name:'หน้า ร.พ.พัทยา',col:'#f59e0b'}
+};
 const BK=Object.keys(BR);
-const BSOFT=['rgba(47,126,216,0.12)','rgba(23,147,106,0.12)','rgba(217,64,64,0.12)','rgba(184,114,15,0.12)'];
 const MN=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const MS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-let raw={'2567':{HQ:[N,N,N,12311,15952,15802,14493,14052,9897,8123,10939,13203],SR:[N,N,N,2252,2752,2359,1972,1749,1712,1693,1910,1554],BS:[N,N,N,966,1194,939,1017,1291,1030,820,1071,762],PT:[N,N,N,1756,2052,1587,1314,1244,1603,1244,1579,2060]},'2568':{HQ:[12372,15036,13312,11282,10980,13925,9844,10870,9978,10311,11748,10241],SR:[1485,1822,1412,1271,1410,2088,1448,1698,1775,1567,1819,1811],BS:[780,998,829,991,812,1067,737,767,849,1015,889,1153],PT:[1497,1624,1405,1232,1469,1443,2253,1528,1917,1884,1884,1312]},'2569':{HQ:[12452,11009,10145,11750,N,N,N,N,N,N,N,N],SR:[1929,2047,2015,1707,N,N,N,N,N,N,N,N],BS:[842,1031,877,647,N,N,N,N,N,N,N,N],PT:[1503,1362,1256,1284,N,N,N,N,N,N,N,N]}};
+
+let raw={'2567':{HQ:[N,N,N,12311,15952,15802,14493,14052,9897,8123,10939,13203],SR:[N,N,N,2252,2752,2359,1972,1749,1712,1693,1910,1554],BS:[N,N,N,966,1194,939,1017,1291,1030,820,1071,762],PT:[N,N,N,1756,2052,1587,1314,1244,1603,1244,1579,2060]},'2568':{HQ:[12372,15036,13312,11282,10980,13925,9844,10870,9978,10311,11748,10241],SR:[1485,1822,1412,1271,1410,2088,1448,1698,1775,1567,1819,1811],BS:[780,998,829,991,812,1067,737,767,849,1015,889,1153],PT:[1497,1624,1405,1232,1469,1443,2253,1528,1917,1884,1884,1312]},'2569':{HQ:[12452,11009,10145,11750,12057,N,N,N,N,N,N,N],SR:[1929,2047,2015,1707,1737,N,N,N,N,N,N,N],BS:[842,1031,877,647,628,N,N,N,N,N,N,N],PT:[1503,1362,1256,1284,1574,N,N,N,N,N,N,N]}};
+
 let cmode='paper',cview='ov',selMi=0;
 let MC=null,YC=null,YC2=null;
+
 function calc(bk,paper){if(paper==null)return null;const b=BR[bk];const exc=Math.max(0,paper-b.limit);const excCost=+(exc*PPE).toFixed(2);const total=+(b.rent+excCost).toFixed(2);return{paper,limit:b.limit,rent:b.rent,exc,excCost,total};}
 function fmtN(n){return n!=null?n.toLocaleString('th-TH'):'–';}
 function fmtB(n){return n!=null?n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','):'–';}
 function getYears(){const y=document.getElementById('selYear').value;return y==='all'?Object.keys(raw):[y];}
 function getBK(){const b=document.getElementById('selBranch').value;return b==='all'?BK:[b];}
-function switchView(v){cview=v;['ov','mo','yr','tb'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';document.getElementById('n-'+x).classList.toggle('on',x===v);});if(v==='mo')renderMonthly();if(v==='yr')renderYearCharts();if(v==='tb')renderTable();}
-function sw(m){cmode=m;['paper','cost','exc'].forEach(k=>document.getElementById({paper:'tp',cost:'tc',exc:'te'}[k]).classList.toggle('on',k===m));renderMainChart(getYears(),getBK());}
+
+function switchView(v){
+  cview=v;
+  ['ov','mo','yr','tb'].forEach(x=>{
+    document.getElementById('v-'+x).style.display=x===v?'block':'none';
+    document.getElementById('n-'+x).classList.toggle('active',x===v);
+  });
+  if(v==='mo')renderMonthly();
+  if(v==='yr')renderYearCharts();
+  if(v==='tb')renderTable();
+}
+function sw(m){
+  cmode=m;
+  ['paper','cost','exc'].forEach(k=>document.getElementById({paper:'tp',cost:'tc',exc:'te'}[k]).classList.toggle('active',k===m));
+  renderMainChart(getYears(),getBK());
+}
 function onYearChange(){selMi=0;render();}
-function render(){const years=getYears(),bks=getBK();let totP=0,totC=0,totE=0,totEC=0,totR=0;const sum={};BK.forEach(b=>{sum[b]={paper:0,exc:0,excCost:0,rent:0,total:0,months:0,overM:0};});years.forEach(y=>{if(!raw[y])return;BK.forEach(b=>{MN.forEach((_,mi)=>{const p=raw[y][b]?.[mi];if(p==null)return;const c=calc(b,p);sum[b].paper+=c.paper;sum[b].exc+=c.exc;sum[b].excCost+=c.excCost;sum[b].rent+=c.rent;sum[b].total+=c.total;sum[b].months++;if(c.exc>0)sum[b].overM++;});});});bks.forEach(b=>{totP+=sum[b].paper;totC+=sum[b].total;totE+=sum[b].exc;totEC+=sum[b].excCost;totR+=sum[b].rent;});const m=document.getElementById('mrow');m.innerHTML=`<div class="metric good"><div class="lb">📄 กระดาษรวม</div><div class="vl">${fmtN(totP)}</div><div class="sb">แผ่น</div></div><div class="metric ${totE>0?'warn':'good'}"><div class="lb">⚠️ แผ่นเกินลิมิต</div><div class="vl">${fmtN(totE)}</div><div class="sb">= ${fmtB(totEC)} ฿</div></div><div class="metric"><div class="lb">🖨️ ค่าเช่าเครื่องรวม</div><div class="vl">${fmtB(totR)}</div><div class="sb">บาท</div></div><div class="metric"><div class="lb">💰 รวมก่อน VAT</div><div class="vl">${fmtB(totC)}</div><div class="sb">บาท</div></div><div class="metric"><div class="lb">🧾 รวม+VAT 7%</div><div class="vl">${fmtB(+(totC*1.07).toFixed(2))}</div><div class="sb">บาท</div></div>`;document.getElementById('bcards').innerHTML=BK.map((b,i)=>{const s=sum[b],cfg=BR[b];const avg=s.months?Math.round(s.paper/s.months):0;const pct=Math.min(130,Math.round(avg/cfg.limit*100));const ov=s.exc>0;return`<div class="brc ${ov?'over-branch':''}"><div class="brh"><span style="width:12px;height:12px;border-radius:3px;background:${cfg.col};display:inline-block;flex-shrink:0"></span>${cfg.name}<span class="badge ${ov?'badge-ov':'badge-ok'}">${ov?'⚠ เกินลิมิต':'✓ ปกติ'}</span></div><div class="drow"><span class="dl">กระดาษรวม</span><span class="dv">${fmtN(s.paper)} แผ่น</span></div><div class="drow"><span class="dl">ลิมิต/เดือน</span><span class="dv">${fmtN(cfg.limit)} แผ่น</span></div><div class="drow"><span class="dl">เฉลี่ย/เดือน</span><span class="dv ${avg>cfg.limit?'ov':''}">${fmtN(avg)} แผ่น</span></div><div class="drow"><span class="dl">แผ่นเกินลิมิตรวม</span><span class="dv ${ov?'ov':''}">${fmtN(s.exc)} แผ่น</span></div><hr class="divider"><div class="drow"><span class="dl">ค่าเช่าเครื่องรวม</span><span class="dv bl">${fmtB(s.rent)} ฿</span></div><div class="drow"><span class="dl">ค่าเกิน (×0.25฿)</span><span class="dv ${ov?'ov':''}">${fmtB(s.excCost)} ฿</span></div><div class="drow"><span class="dl">รวมก่อน VAT</span><span class="dv">${fmtB(s.total)} ฿</span></div><div class="drow"><span class="dl">รวม+VAT 7%</span><span class="dv">${fmtB(+(s.total*1.07).toFixed(2))} ฿</span></div><div class="drow"><span class="dl">เดือนที่เกินลิมิต</span><span class="dv ${ov?'ov':''}">${s.overM} / ${s.months} เดือน</span></div><div class="barbg"><div class="barfill" style="width:${Math.min(100,pct)}%;background:${pct>100?'#D94040':cfg.col}"></div></div><div class="barlb">${pct}% ของลิมิต (เฉลี่ย)</div></div>`;}).join('');renderMainChart(years,getBK());if(cview==='mo')renderMonthly();if(cview==='yr')renderYearCharts();if(cview==='tb')renderTable();}
-function renderMainChart(years,bks){const labels=years.length===1?MS:years.flatMap(y=>MS.map(m=>y.slice(2)+'/'+m));const ds=bks.map(b=>{const bi=BK.indexOf(b);const data=years.flatMap(y=>MN.map((_,mi)=>{const p=raw[y]?.[b]?.[mi];if(p==null)return null;const c=calc(b,p);return cmode==='paper'?c.paper:cmode==='cost'?c.total:c.exc;}));return{label:BR[b].name,data,borderColor:BR[b].col,backgroundColor:BSOFT[bi],fill:true,tension:.35,pointRadius:4,pointHoverRadius:7,spanGaps:false};});document.getElementById('leg').innerHTML=ds.map(d=>`<span><span class="dot" style="background:${d.borderColor}"></span>${d.label}</span>`).join('');if(MC)MC.destroy();const unit=cmode==='paper'?'แผ่น':cmode==='cost'?'฿':'แผ่นเกิน';MC=new Chart(document.getElementById('MC'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} ${unit}`}}},scales:{x:{ticks:{font:{size:11},autoSkip:years.length>1,maxRotation:45}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});}
-function renderYearCharts(){const years=Object.keys(raw);const bks=getBK();const ds1=bks.map(b=>({label:BR[b].name,data:years.map(y=>{const vs=(raw[y]?.[b]||[]).filter(v=>v!=null);return vs.length?vs.reduce((a,c)=>a+c,0):null;}),backgroundColor:BR[b].col,borderRadius:5}));if(YC)YC.destroy();YC=new Chart(document.getElementById('YC'),{type:'bar',data:{labels:years,datasets:ds1},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString():'-'} แผ่น`}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});const ds2=bks.map(b=>({label:BR[b].name,data:years.map(y=>{let t=0,any=false;MN.forEach((_,mi)=>{const p=raw[y]?.[b]?.[mi];if(p!=null){t+=calc(b,p).total;any=true;}});return any?+t.toFixed(2):null;}),backgroundColor:BR[b].col,borderRadius:5}));if(YC2)YC2.destroy();YC2=new Chart(document.getElementById('YC2'),{type:'bar',data:{labels:years,datasets:ds2},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} ฿`}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});}
-function renderMonthly(){const years=getYears(),bks=getBK();const avail=new Set();years.forEach(y=>{bks.forEach(b=>{(raw[y]?.[b]||[]).forEach((v,mi)=>{if(v!=null)avail.add(mi);});});});if(!avail.has(selMi))selMi=[...avail].sort((a,b)=>a-b)[0]??0;document.getElementById('motitle').textContent=`📅 รายละเอียด — ${MN[selMi]}`;document.getElementById('msel').innerHTML=MN.map((m,i)=>`<div class="mbtn ${avail.has(i)?i===selMi?'on':'':'na'}" onclick="selM(${i})">${m}</div>`).join('');let html='<div class="mo-grid">';years.forEach(y=>{const hasData=bks.some(b=>raw[y]?.[b]?.[selMi]!=null);if(!hasData)return;let tp=0,te=0,tec=0,tr=0,tt=0;const rowsHtml=bks.map(b=>{const p=raw[y]?.[b]?.[selMi];if(p==null)return'';const c=calc(b,p);tp+=c.paper;te+=c.exc;tec+=c.excCost;tr+=c.rent;tt+=c.total;return`<tr><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${BR[b].col};margin-right:5px"></span>${BR[b].name}</td><td>${fmtN(c.limit)}</td><td>${fmtN(c.paper)}</td><td class="${c.exc>0?'oc':''}">${c.exc>0?fmtN(c.exc):'–'}</td><td>${fmtB(c.rent)}</td><td class="${c.excCost>0?'oc':''}">${c.excCost>0?fmtB(c.excCost):'–'}</td><td>${fmtB(c.total)}</td><td>${fmtB(+(c.total*1.07).toFixed(2))}</td></tr>`;}).join('');html+=`<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;overflow-x:auto"><div style="font-size:13px;font-weight:700;color:var(--bluet);margin-bottom:10px;display:flex;align-items:center;gap:6px"><span style="background:var(--bluebg);border-radius:6px;padding:2px 8px">ปี ${y}</span> ${MN[selMi]}</div><table class="dt" style="min-width:500px"><thead><tr><th style="text-align:left">สาขา</th><th>ลิมิต</th><th>ใช้(แผ่น)</th><th>เกิน</th><th>ค่าเช่า</th><th>ค่าเกิน</th><th>รวม(฿)</th><th>+VAT7%</th></tr></thead><tbody>${rowsHtml}</tbody><tfoot><tr><td>รวม</td><td>–</td><td>${fmtN(tp)}</td><td class="${te>0?'oc':''}">${te>0?fmtN(te):'–'}</td><td>${fmtB(tr)}</td><td class="${tec>0?'oc':''}">${tec>0?fmtB(tec):'–'}</td><td>${fmtB(tt)}</td><td>${fmtB(+(tt*1.07).toFixed(2))}</td></tr></tfoot></table></div>`;});html+='</div>';html+=`<div class="card" style="margin-top:.85rem"><div class="card-title">📊 ${MN[selMi]} — เปรียบเทียบทุกปี (จำนวนแผ่น)</div><div style="position:relative;height:220px"><canvas id="MC2"></canvas></div></div>`;document.getElementById('modet').innerHTML=html;setTimeout(()=>{const ctx=document.getElementById('MC2');if(!ctx)return;new Chart(ctx,{type:'bar',data:{labels:Object.keys(raw),datasets:bks.map(b=>({label:BR[b].name,data:Object.keys(raw).map(y=>raw[y]?.[b]?.[selMi]??null),backgroundColor:BR[b].col,borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString():'-'} แผ่น`}}},scales:{x:{ticks:{font:{size:12}}},y:{ticks:{font:{size:11},callback:v=>v.toLocaleString()},beginAtZero:true}}}});},60);}
+
+function render(){
+  const years=getYears(),bks=getBK();
+  let totP=0,totC=0,totE=0,totEC=0,totR=0;
+  const sum={};
+  BK.forEach(b=>{sum[b]={paper:0,exc:0,excCost:0,rent:0,total:0,months:0,overM:0};});
+  
+  years.forEach(y=>{
+    if(!raw[y])return;
+    BK.forEach(b=>{
+      MN.forEach((_,mi)=>{
+        const p=raw[y][b]?.[mi];
+        if(p==null)return;
+        const c=calc(b,p);
+        sum[b].paper+=c.paper;sum[b].exc+=c.exc;sum[b].excCost+=c.excCost;
+        sum[b].rent+=c.rent;sum[b].total+=c.total;sum[b].months++;
+        if(c.exc>0)sum[b].overM++;
+      });
+    });
+  });
+  
+  bks.forEach(b=>{totP+=sum[b].paper;totC+=sum[b].total;totE+=sum[b].exc;totEC+=sum[b].excCost;totR+=sum[b].rent;});
+
+  // Metrics
+  document.getElementById('mrow').innerHTML=`
+    <div class="metric good">
+      <div class="metric-label">📄 กระดาษรวม</div>
+      <div class="metric-value">${fmtN(totP)}</div>
+      <div class="metric-sub">แผ่นทั้งหมด</div>
+    </div>
+    <div class="metric ${totE>0?'warn':'good'}">
+      <div class="metric-label">⚠️ แผ่นเกินลิมิต</div>
+      <div class="metric-value">${fmtN(totE)}</div>
+      <div class="metric-sub">${fmtB(totEC)} บาท (@0.25฿)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">🖨️ ค่าเช่าเครื่อง</div>
+      <div class="metric-value">${fmtB(totR)}</div>
+      <div class="metric-sub">บาท (รวม)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">💰 ค่าใช้จ่าย</div>
+      <div class="metric-value">${fmtB(totC)}</div>
+      <div class="metric-sub">บาท (ก่อน VAT)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">🧾 รวม VAT 7%</div>
+      <div class="metric-value">${fmtB(+(totC*1.07).toFixed(2))}</div>
+      <div class="metric-sub">บาท (รวม VAT)</div>
+    </div>`;
+
+  // Branch cards
+  document.getElementById('bcards').innerHTML=BK.map((b,idx)=>{
+    const s=sum[b],cfg=BR[b];
+    const avg=s.months?Math.round(s.paper/s.months):0;
+    const pct=Math.min(150,Math.round(avg/cfg.limit*100));
+    const ov=s.exc>0;
+    return`<div class="branch-card ${ov?'over':''}" style="animation-delay:${0.5+idx*0.1}s">
+      <div class="branch-header">
+        <div class="branch-color" style="background:${cfg.col}"></div>
+        <div class="branch-name">${cfg.name}</div>
+        <div class="branch-badge ${ov?'warn':'ok'}">${ov?'⚠ เกินลิมิต':'✓ ปกติ'}</div>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">กระดาษรวม</span>
+        <span class="branch-value">${fmtN(s.paper)} แผ่น</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">ลิมิต/เดือน</span>
+        <span class="branch-value">${fmtN(cfg.limit)} แผ่น</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">เฉลี่ย/เดือน</span>
+        <span class="branch-value ${avg>cfg.limit?'highlight':''}">${fmtN(avg)} แผ่น</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">แผ่นเกินลิมิตรวม</span>
+        <span class="branch-value ${ov?'highlight':''}">${fmtN(s.exc)} แผ่น</span>
+      </div>
+      <hr class="divider">
+      <div class="branch-row">
+        <span class="branch-label">ค่าเช่าเครื่องรวม</span>
+        <span class="branch-value accent">${fmtB(s.rent)} ฿</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">ค่าเกิน (×0.25฿)</span>
+        <span class="branch-value ${ov?'highlight':''}">${fmtB(s.excCost)} ฿</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">รวมก่อน VAT</span>
+        <span class="branch-value">${fmtB(s.total)} ฿</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">รวม+VAT 7%</span>
+        <span class="branch-value">${fmtB(+(s.total*1.07).toFixed(2))} ฿</span>
+      </div>
+      <div class="branch-row">
+        <span class="branch-label">เดือนที่เกินลิมิต</span>
+        <span class="branch-value ${ov?'highlight':''}">${s.overM} / ${s.months} เดือน</span>
+      </div>
+      <div class="branch-progress">
+        <div class="branch-progress-bar" style="width:${Math.min(100,pct)}%;background:${pct>100?'#f43f5e':cfg.col}"></div>
+      </div>
+      <div class="branch-progress-label">${pct}% ของลิมิต (เฉลี่ย)</div>
+    </div>`;
+  }).join('');
+
+  renderMainChart(years,getBK());
+  if(cview==='mo')renderMonthly();
+  if(cview==='yr')renderYearCharts();
+  if(cview==='tb')renderTable();
+}
+
+function renderMainChart(years,bks){
+  const labels=years.length===1?MS:years.flatMap(y=>MS.map(m=>y.slice(2)+'/'+m));
+  const ds=bks.map(b=>{
+    const data=years.flatMap(y=>MN.map((_,mi)=>{
+      const p=raw[y]?.[b]?.[mi];
+      if(p==null)return null;
+      const c=calc(b,p);
+      return cmode==='paper'?c.paper:cmode==='cost'?c.total:c.exc;
+    }));
+    return{
+      label:BR[b].name,data,
+      borderColor:BR[b].col,backgroundColor:BR[b].col+'20',
+      fill:true,tension:0.4,pointRadius:5,pointHoverRadius:8,
+      borderWidth:3,spanGaps:false
+    };
+  });
+  
+  document.getElementById('leg').innerHTML=ds.map(d=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.borderColor}"></div>
+      ${d.label}
+    </div>`).join('');
+  
+  if(MC)MC.destroy();
+  const unit=cmode==='paper'?'แผ่น':cmode==='cost'?'฿':'แผ่นเกิน';
+  MC=new Chart(document.getElementById('MC'),{
+    type:'line',data:{labels,datasets:ds},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          mode:'index',intersect:false,
+          backgroundColor:'rgba(15,23,42,0.95)',
+          titleColor:'#f1f5f9',bodyColor:'#cbd5e1',
+          borderColor:'#334155',borderWidth:1,
+          padding:12,cornerRadius:8,
+          callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} ${unit}`}
+        }
+      },
+      scales:{
+        x:{
+          ticks:{color:'#64748b',font:{size:11}},
+          grid:{color:'rgba(255,255,255,0.05)'}
+        },
+        y:{
+          ticks:{color:'#64748b',font:{size:11},callback:v=>v.toLocaleString()},
+          grid:{color:'rgba(255,255,255,0.05)'},
+          beginAtZero:true
+        }
+      }
+    }
+  });
+}
+
+function renderYearCharts(){
+  const years=Object.keys(raw);
+  const bks=getBK();
+  
+  // Paper chart
+  const ds1=bks.map(b=>({
+    label:BR[b].name,
+    data:years.map(y=>{const vs=(raw[y]?.[b]||[]).filter(v=>v!=null);return vs.length?vs.reduce((a,c)=>a+c,0):null;}),
+    backgroundColor:BR[b].col,borderRadius:8,borderSkipped:false
+  }));
+  
+  if(YC)YC.destroy();
+  YC=new Chart(document.getElementById('YC'),{
+    type:'bar',data:{labels:years,datasets:ds1},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(15,23,42,0.95)',
+          callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString():'-'} แผ่น`}
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#64748b'},grid:{display:false}},
+        y:{ticks:{color:'#64748b',callback:v=>v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'},beginAtZero:true}
+      }
+    }
+  });
+  
+  // Cost chart
+  const ds2=bks.map(b=>({
+    label:BR[b].name,
+    data:years.map(y=>{
+      let t=0,any=false;
+      MN.forEach((_,mi)=>{const p=raw[y]?.[b]?.[mi];if(p!=null){t+=calc(b,p).total;any=true;}});
+      return any?+t.toFixed(2):null;
+    }),
+    backgroundColor:BR[b].col,borderRadius:8,borderSkipped:false
+  }));
+  
+  if(YC2)YC2.destroy();
+  YC2=new Chart(document.getElementById('YC2'),{
+    type:'bar',data:{labels:years,datasets:ds2},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(15,23,42,0.95)',
+          callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?c.parsed.y.toLocaleString():'-'} ฿`}
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#64748b'},grid:{display:false}},
+        y:{ticks:{color:'#64748b',callback:v=>v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderMonthly(){
+  const years=getYears(),bks=getBK();
+  const avail=new Set();
+  years.forEach(y=>{bks.forEach(b=>{(raw[y]?.[b]||[]).forEach((v,mi)=>{if(v!=null)avail.add(mi);});});});
+  if(!avail.has(selMi))selMi=[...avail].sort((a,b)=>a-b)[0]??0;
+  
+  document.getElementById('motitle').textContent=`📅 รายละเอียด — ${MN[selMi]}`;
+  document.getElementById('msel').innerHTML=MN.map((m,i)=>
+    `<div class="month-btn ${avail.has(i)?i===selMi?'active':'':'na'}" onclick="selM(${i})">${m}</div>`
+  ).join('');
+
+  let html='<div class="monthly-grid">';
+  years.forEach(y=>{
+    const hasData=bks.some(b=>raw[y]?.[b]?.[selMi]!=null);
+    if(!hasData)return;
+    
+    let tp=0,te=0,tec=0,tr=0,tt=0;
+    const rowsHtml=bks.map(b=>{
+      const p=raw[y]?.[b]?.[selMi];
+      if(p==null)return'';
+      const c=calc(b,p);
+      tp+=c.paper;te+=c.exc;tec+=c.excCost;tr+=c.rent;tt+=c.total;
+      return`<tr>
+        <td>
+          <div class="legend-dot" style="background:${BR[b].col};display:inline-block;margin-right:8px"></div>
+          ${BR[b].name}
+        </td>
+        <td>${fmtN(c.limit)}</td>
+        <td>${fmtN(c.paper)}</td>
+        <td class="${c.exc>0?'highlight':''}">${c.exc>0?fmtN(c.exc):'–'}</td>
+        <td>${fmtB(c.rent)}</td>
+        <td class="${c.excCost>0?'highlight':''}">${c.excCost>0?fmtB(c.excCost):'–'}</td>
+        <td>${fmtB(c.total)}</td>
+        <td>${fmtB(+(c.total*1.07).toFixed(2))}</td>
+      </tr>`;
+    }).join('');
+    
+    html+=`<div class="monthly-card">
+      <div class="monthly-card-header">
+        <span class="monthly-tag">ปี ${y}</span>
+        ${MN[selMi]}
+      </div>
+      <table class="data-table" style="min-width:550px">
+        <thead><tr>
+          <th style="text-align:left">สาขา</th>
+          <th>ลิมิต</th><th>ใช้</th><th>เกิน</th>
+          <th>ค่าเช่า</th><th>ค่าเกิน</th>
+          <th>รวม</th><th>+VAT</th>
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+        <tfoot><tr>
+          <td>รวม</td><td>–</td>
+          <td>${fmtN(tp)}</td>
+          <td class="${te>0?'highlight':''}">${te>0?fmtN(te):'–'}</td>
+          <td>${fmtB(tr)}</td>
+          <td class="${tec>0?'highlight':''}">${tec>0?fmtB(tec):'–'}</td>
+          <td>${fmtB(tt)}</td>
+          <td>${fmtB(+(tt*1.07).toFixed(2))}</td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+  });
+  html+='</div>';
+  
+  html+=`<div class="card" style="margin-top:2rem">
+    <div class="card-header">
+      <div class="card-title">📊 ${MN[selMi]} — เปรียบเทียบทุกปี</div>
+    </div>
+    <div style="position:relative;height:260px"><canvas id="MC2"></canvas></div>
+  </div>`;
+  
+  document.getElementById('modet').innerHTML=html;
+  
+  setTimeout(()=>{
+    const ctx=document.getElementById('MC2');
+    if(!ctx)return;
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:Object.keys(raw),
+        datasets:bks.map(b=>({
+          label:BR[b].name,
+          data:Object.keys(raw).map(y=>raw[y]?.[b]?.[selMi]??null),
+          backgroundColor:BR[b].col,borderRadius:8
+        }))
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:'rgba(15,23,42,0.95)',
+            callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y!=null?Math.round(c.parsed.y).toLocaleString():'-'} แผ่น`}
+          }
+        },
+        scales:{
+          x:{ticks:{color:'#64748b'},grid:{display:false}},
+          y:{ticks:{color:'#64748b',callback:v=>v.toLocaleString()},grid:{color:'rgba(255,255,255,0.05)'},beginAtZero:true}
+        }
+      }
+    });
+  },80);
+}
+
 function selM(i){selMi=i;renderMonthly();}
-function renderTable(){const years=getYears(),bks=getBK();let rows=[];years.forEach(y=>{MN.forEach((m,mi)=>{bks.forEach(b=>{const p=raw[y]?.[b]?.[mi];if(p==null)return;const c=calc(b,p);rows.push({y,m,b,c});});});});document.getElementById('rowCount').textContent=rows.length+' รายการ';if(!rows.length){document.getElementById('tbl').innerHTML='<p style="color:var(--text3);padding:1rem;font-size:12px">ไม่มีข้อมูล</p>';return;}let tp=0,te=0,tec=0,tr=0,tt=0;rows.forEach(r=>{tp+=r.c.paper;te+=r.c.exc;tec+=r.c.excCost;tr+=r.c.rent;tt+=r.c.total;});document.getElementById('tbl').innerHTML=`<table class="dt"><thead><tr><th>ปี</th><th>เดือน</th><th>สาขา</th><th>ลิมิต</th><th>ใช้ (แผ่น)</th><th>เกิน (แผ่น)</th><th>ค่าเช่า (฿)</th><th>ค่าเกิน @0.25฿</th><th>รวม (฿)</th><th>+VAT 7% (฿)</th></tr></thead><tbody>${rows.map(({y,m,b,c})=>`<tr><td><span style="background:var(--bluebg);color:var(--bluet);padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600">${y}</span></td><td>${m}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${BR[b].col};margin-right:4px"></span>${BR[b].name}</td><td>${fmtN(c.limit)}</td><td>${fmtN(c.paper)}</td><td class="${c.exc>0?'oc':''}">${c.exc>0?fmtN(c.exc):'–'}</td><td>${fmtB(c.rent)}</td><td class="${c.excCost>0?'oc':''}">${c.excCost>0?fmtB(c.excCost):'–'}</td><td>${fmtB(c.total)}</td><td>${fmtB(+(c.total*1.07).toFixed(2))}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="3" style="text-align:left">รวมทั้งหมด</td><td>–</td><td>${fmtN(tp)}</td><td class="${te>0?'oc':''}">${te>0?fmtN(te):'–'}</td><td>${fmtB(tr)}</td><td class="${tec>0?'oc':''}">${tec>0?fmtB(tec):'–'}</td><td>${fmtB(tt)}</td><td>${fmtB(+(tt*1.07).toFixed(2))}</td></tr></tfoot></table>`;}
-function exportCSV(){const years=getYears(),bks=getBK();const rs=[['ปี','เดือน','สาขา','ลิมิต','ใช้(แผ่น)','เกิน(แผ่น)','ค่าเช่า(฿)','ค่าเกิน@0.25฿','รวม(฿)','รวม+VAT7%(฿)']];years.forEach(y=>MN.forEach((m,mi)=>bks.forEach(b=>{const p=raw[y]?.[b]?.[mi];if(p==null)return;const c=calc(b,p);rs.push([y,m,BR[b].name,c.limit,c.paper,c.exc,c.rent,c.excCost,c.total.toFixed(2),(c.total*1.07).toFixed(2)]);})));const csv='\uFEFF'+rs.map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='paper_usage_'+getYears().join('-')+'.csv';a.click();}
-function loadFile(inp){const file=inp.files[0];if(!file)return;const st=document.getElementById('st');st.className='status';st.style.display='block';st.textContent='⏳ กำลังอ่านไฟล์...';const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});const sn=wb.SheetNames.find(s=>s.includes('สรุป')||s.toLowerCase().includes('summary'))||wb.SheetNames[0];const ws=wb.Sheets[sn];const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});const nd=parseSheet(json);if(Object.keys(nd).length>0){Object.assign(raw,nd);rebuildYearSelect();render();st.className='status ok';st.innerHTML='✅ โหลดสำเร็จ: "'+file.name+'" (sheet: '+sn+')';}else{st.className='status err';st.innerHTML='⚠️ ไม่พบข้อมูลในไฟล์';}}catch(err){st.className='status err';st.innerHTML='❌ เกิดข้อผิดพลาด: '+err.message;}};reader.readAsBinaryString(file);}
-function parseSheet(rows){const nd={};const bmap={'สำนักงานใหญ่':'HQ','ค้าส่ง':'HQ','15,000':'HQ','ศรีราชา 3':'SR','ศรีราชา':'SR','บางแสน':'BS','พัทยา':'PT','กรุงเทพพัทยา':'PT'};let cy=null,cb=null;rows.forEach(row=>{if(!row||!row[0])return;const c0=String(row[0]).replace(/\n/g,' ').trim();const c1=row[1]?String(row[1]).replace(/\n/g,' ').trim():'';const c2=row[2]?String(row[2]).replace(/\n/g,' ').trim():'';const ym=c2.match(/^(256[0-9])$/);if(ym){cy=ym[1];if(!nd[cy]){nd[cy]={};BK.forEach(b=>{nd[cy][b]=Array(12).fill(null);});}return;}if(!cy)return;for(const[k,v]of Object.entries(bmap)){if(c0.includes(k)){cb=v;break;}}if(cb&&c1.includes('กระดาษใช้ไป')){MN.forEach((_,mi)=>{const val=row[mi+2];if(val==null||val==='')return;const n=parseInt(String(val).replace(/[^0-9]/g,''));if(!isNaN(n)&&n>0)nd[cy][cb][mi]=n;});}});return nd;}
-function rebuildYearSelect(){const opts=Object.keys(raw).sort();const sel=document.getElementById('selYear');while(sel.options.length>1)sel.remove(1);opts.forEach(y=>{const o=document.createElement('option');o.value=y;o.text='ปี '+y;sel.appendChild(o);});sel.value=opts[opts.length-1];}
+
+function renderTable(){
+  const years=getYears(),bks=getBK();
+  let rows=[];
+  years.forEach(y=>{
+    MN.forEach((m,mi)=>{
+      bks.forEach(b=>{
+        const p=raw[y]?.[b]?.[mi];
+        if(p==null)return;
+        const c=calc(b,p);
+        rows.push({y,m,b,c});
+      });
+    });
+  });
+  
+  document.getElementById('rowCount').textContent=rows.length+' รายการ';
+  if(!rows.length){
+    document.getElementById('tbl').innerHTML='<p style="color:var(--text-tertiary);padding:2rem;text-align:center">ไม่มีข้อมูล</p>';
+    return;
+  }
+  
+  let tp=0,te=0,tec=0,tr=0,tt=0;
+  rows.forEach(r=>{tp+=r.c.paper;te+=r.c.exc;tec+=r.c.excCost;tr+=r.c.rent;tt+=r.c.total;});
+  
+  document.getElementById('tbl').innerHTML=`
+    <table class="data-table">
+      <thead><tr>
+        <th>ปี</th><th>เดือน</th><th>สาขา</th>
+        <th>ลิมิต</th><th>ใช้ (แผ่น)</th><th>เกิน</th>
+        <th>ค่าเช่า</th><th>ค่าเกิน</th>
+        <th>รวม (฿)</th><th>+VAT 7%</th>
+      </tr></thead>
+      <tbody>${rows.map(({y,m,b,c})=>`<tr>
+        <td><span style="background:rgba(59,130,246,0.2);color:#60a5fa;padding:0.25rem 0.75rem;border-radius:6px;font-size:0.85rem;font-weight:700">${y}</span></td>
+        <td>${m}</td>
+        <td>
+          <div class="legend-dot" style="background:${BR[b].col};display:inline-block;margin-right:8px"></div>
+          ${BR[b].name}
+        </td>
+        <td>${fmtN(c.limit)}</td>
+        <td>${fmtN(c.paper)}</td>
+        <td class="${c.exc>0?'highlight':''}">${c.exc>0?fmtN(c.exc):'–'}</td>
+        <td>${fmtB(c.rent)}</td>
+        <td class="${c.excCost>0?'highlight':''}">${c.excCost>0?fmtB(c.excCost):'–'}</td>
+        <td>${fmtB(c.total)}</td>
+        <td>${fmtB(+(c.total*1.07).toFixed(2))}</td>
+      </tr>`).join('')}</tbody>
+      <tfoot><tr>
+        <td colspan="3" style="text-align:left">รวมทั้งหมด</td>
+        <td>–</td><td>${fmtN(tp)}</td>
+        <td class="${te>0?'highlight':''}">${te>0?fmtN(te):'–'}</td>
+        <td>${fmtB(tr)}</td>
+        <td class="${tec>0?'highlight':''}">${tec>0?fmtB(tec):'–'}</td>
+        <td>${fmtB(tt)}</td>
+        <td>${fmtB(+(tt*1.07).toFixed(2))}</td>
+      </tr></tfoot>
+    </table>`;
+}
+
+function exportCSV(){
+  const years=getYears(),bks=getBK();
+  const rs=[['ปี','เดือน','สาขา','ลิมิต','ใช้','เกิน','ค่าเช่า','ค่าเกิน','รวม','+VAT7%']];
+  years.forEach(y=>MN.forEach((m,mi)=>bks.forEach(b=>{
+    const p=raw[y]?.[b]?.[mi];
+    if(p==null)return;
+    const c=calc(b,p);
+    rs.push([y,m,BR[b].name,c.limit,c.paper,c.exc,c.rent,c.excCost,c.total.toFixed(2),(c.total*1.07).toFixed(2)]);
+  })));
+  const csv='\uFEFF'+rs.map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='paper_usage_'+getYears().join('-')+'.csv';
+  a.click();
+}
+
+function loadFile(inp){
+  const file=inp.files[0];
+  if(!file)return;
+  const st=document.getElementById('st');
+  st.className='status';
+  st.style.display='block';
+  st.textContent='⏳ กำลังอ่านไฟล์...';
+  
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const sn=wb.SheetNames.find(s=>s.includes('สรุป')||s.toLowerCase().includes('summary'))||wb.SheetNames[0];
+      const ws=wb.Sheets[sn];
+      const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+      const nd=parseSheet(json);
+      
+      if(Object.keys(nd).length>0){
+        Object.assign(raw,nd);
+        rebuildYearSelect();
+        render();
+        st.className='status ok';
+        st.innerHTML='✅ โหลดสำเร็จ: "'+file.name+'" (sheet: '+sn+')';
+      }else{
+        st.className='status err';
+        st.innerHTML='⚠️ ไม่พบข้อมูลในไฟล์';
+      }
+    }catch(err){
+      st.className='status err';
+      st.innerHTML='❌ เกิดข้อผิดพลาด: '+err.message;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+/* ════════════════════════════════════════════════════
+   GOOGLE SHEET CONFIG — แก้ ID ตรงนี้ถ้าเปลี่ยนไฟล์
+   ต้องเปิดสิทธิ์: "ทุกคนที่มีลิงก์ - ดูได้"
+   ════════════════════════════════════════════════════ */
+const SHEET_ID = '1v7NTBsSxmoM03heSaH1-1wkBXWetN4VCVJXtGAR2ICQ';
+const SHEET_NAME = 'สรุป';
+const GS_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+// แปลง CSV text -> array of rows (รองรับ quoted fields ที่มี , และ \n ในเซลล์)
+function csvToRows(text){
+  const rows=[];let row=[];let field='';let inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(inQ){
+      if(ch==='"'){
+        if(text[i+1]==='"'){field+='"';i++;}
+        else inQ=false;
+      }else field+=ch;
+    }else{
+      if(ch==='"')inQ=true;
+      else if(ch===','){row.push(field);field='';}
+      else if(ch==='\r'){/*skip*/}
+      else if(ch==='\n'){row.push(field);rows.push(row);row=[];field='';}
+      else field+=ch;
+    }
+  }
+  if(field!==''||row.length){row.push(field);rows.push(row);}
+  return rows;
+}
+
+async function fetchGoogleSheet(){
+  const stLive=document.getElementById('stLive');
+  try{
+    const res=await fetch(GS_CSV_URL,{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const rows=csvToRows(text);
+    const nd=parseSheet(rows);
+    if(Object.keys(nd).length>0){
+      Object.assign(raw,nd);
+      rebuildYearSelect();
+      render();
+      const now=new Date();
+      stLive.className='status ok';
+      stLive.innerHTML=`✅ โหลดข้อมูลล่าสุดจาก Google Sheet สำเร็จ — อัปเดตเมื่อ ${now.toLocaleString('th-TH')}`;
+    }else{
+      stLive.className='status err';
+      stLive.innerHTML='⚠️ เชื่อมต่อ Google Sheet สำเร็จ แต่ไม่พบข้อมูลในชีต "สรุป" — ใช้ข้อมูลสำรองที่ฝังไว้';
+    }
+  }catch(err){
+    stLive.className='status err';
+    stLive.innerHTML='⚠️ ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้ (' + err.message + ') — ใช้ข้อมูลสำรองที่ฝังไว้ในไฟล์';
+  }
+}
+
+  const nd={};
+  const bmap={'สำนักงานใหญ่':'HQ','ค้าส่ง':'HQ','15,000':'HQ','ศรีราชา 3':'SR','ศรีราชา':'SR','บางแสน':'BS','พัทยา':'PT','กรุงเทพพัทยา':'PT'};
+  let cy=null,cb=null;
+  
+  rows.forEach(row=>{
+    if(!row||!row[0])return;
+    const c0=String(row[0]).replace(/\n/g,' ').trim();
+    const c1=row[1]?String(row[1]).replace(/\n/g,' ').trim():'';
+    const c2=row[2]?String(row[2]).replace(/\n/g,' ').trim():'';
+    
+    const ym=c2.match(/^(256[0-9])$/);
+    if(ym){
+      cy=ym[1];
+      if(!nd[cy]){
+        nd[cy]={};
+        BK.forEach(b=>{nd[cy][b]=Array(12).fill(null);});
+      }
+      return;
+    }
+    
+    if(!cy)return;
+    
+    for(const[k,v]of Object.entries(bmap)){
+      if(c0.includes(k)){cb=v;break;}
+    }
+    
+    if(cb&&c1.includes('กระดาษใช้ไป')){
+      MN.forEach((_,mi)=>{
+        const val=row[mi+2];
+        if(val==null||val==='')return;
+        const n=parseInt(String(val).replace(/[^0-9]/g,''));
+        if(!isNaN(n)&&n>0)nd[cy][cb][mi]=n;
+      });
+    }
+  });
+  
+  return nd;
+}
+
+function rebuildYearSelect(){
+  const opts=Object.keys(raw).sort();
+  const sel=document.getElementById('selYear');
+  while(sel.options.length>1)sel.remove(1);
+  opts.forEach(y=>{
+    const o=document.createElement('option');
+    o.value=y;
+    o.text='ปี '+y;
+    sel.appendChild(o);
+  });
+  sel.value=opts[opts.length-1];
+}
+
 render();
+fetchGoogleSheet();
 </script>
 </body>
 </html>
